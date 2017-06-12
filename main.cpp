@@ -155,6 +155,124 @@ void spacedWords (Sequence& sequence, string const& pattern, vector<Word>& out)
     sequence.set_words(out);
 }
 
+int bucket (vector<Word>& sortedWords, int start)
+{
+    int bucket_length = 1;
+    for (int i = start; sortedWords[i].key != sortedWords[i+1].key; i++)
+    {
+        bucket_length++;
+    }
+    return bucket_length;
+}
+
+vector <tuple<unsigned long long, int, int> > findMatches (vector<Word>& sw1, vector<Word>& sw2, vector<tuple<unsigned long long, int, int> >& out)
+{
+    int skip = 0;
+    for (unsigned int i = 0; i < sw1.size(); ++i)
+    {
+        cout << i << endl;
+        int bl1 = bucket(sw1, i);
+        if (bl1 > 1)
+        {
+            for (i; i < (i + bl1); ++i)
+            {
+                for (unsigned int j = 0; j < sw2.size(); ++j)
+                {
+                    j += skip;
+                    int bl2 = bucket(sw2, j);
+                    if (bl2 > 1)
+                    {
+                        for (j; j < (j + bl2); ++j)
+                        {
+                            if (sw1[i].key > sw2[j].key)
+                            {
+                                skip++;
+                                continue;
+                            }
+                            if (sw1[i].key < sw2[j].key)
+                            {
+                                break;
+                            }
+                            if (sw1[i].key == sw2[j].key)
+                            {
+                                skip++;
+                                tuple<unsigned long long, int, int> tmp (sw1[i].key, sw1[i].pos, sw2[j].pos);
+                                out.push_back(tmp);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (sw1[i].key > sw2[j].key)
+                        {
+                            skip++;
+                            continue;
+                        }
+                        if (sw1[i].key < sw2[j].key)
+                        {
+                            break;
+                        }
+                        if (sw1[i].key == sw2[j].key)
+                        {
+                            skip++;
+                            tuple<unsigned long long, int, int> tmp (sw1[i].key, sw1[i].pos, sw2[j].pos);
+                            out.push_back(tmp);
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (unsigned int j = 0; j < sw2.size(); ++j)
+            {
+                j += skip;
+                int bl2 = bucket(sw2, j);
+                if (bl2 > 1)
+                {
+                    for (j; j < (j + bl2); ++j)
+                    {
+                        if (sw1[i].key > sw2[j].key)
+                        {
+                            skip++;
+                            continue;
+                        }
+                        if (sw1[i].key < sw2[j].key)
+                        {
+                            break;
+                        }
+                        if (sw1[i].key == sw2[j].key)
+                        {
+                            skip++;
+                            tuple<unsigned long long, int, int> tmp (sw1[i].key, sw1[i].pos, sw2[j].pos);
+                            out.push_back(tmp);
+                        }
+                    }
+                }
+                else
+                {
+                    if (sw1[i].key > sw2[j].key)
+                    {
+                        skip++;
+                        continue;
+                    }
+                    if (sw1[i].key < sw2[j].key)
+                    {
+                        break;
+                    }
+                    if (sw1[i].key == sw2[j].key)
+                    {
+                        skip++;
+                        tuple<unsigned long long, int, int> tmp (sw1[i].key, sw1[i].pos, sw2[j].pos);
+                        out.push_back(tmp);
+                    }
+                }
+            }
+        }
+    }
+    return out;
+}
+
 int main(int argc, char **argv)
 {
     clock_t t;
@@ -168,6 +286,21 @@ int main(int argc, char **argv)
     {
         vector<Word> sw;
         spacedWords(sequences[i], pattern, sw);
+    }
+
+    for (unsigned int i = 0; i < sequences.size(); ++i)
+    {
+        for (unsigned int j = sequences.size(); j > i; ++j)
+        {
+            vector<tuple<unsigned long long, int, int> > matchVector;
+            findMatches(sequences[i].sorted_words, sequences[j].sorted_words, matchVector);
+            cout << "Matches zwischen " << sequences[i].header << " und " << sequences[j].header << " :\n";
+            for (unsigned int k = 0; k < matchVector.size(); ++k)
+            {
+                tuple<unsigned long long, int, int> print = matchVector[k];
+                cout << get<0>(print) << " | (" << get<1>(print) << "," << get<2>(print) << ")\n";
+            }
+        }
     }
 
     /* TEST */
