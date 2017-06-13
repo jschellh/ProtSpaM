@@ -129,6 +129,10 @@ vector<Sequence> parser (int argc, char **argv, vector<Sequence>& out)
             }
         }
     }
+    if (!tmp.header.empty() )
+    {
+        out.push_back(tmp);
+    }
     return out;
 }
 
@@ -145,7 +149,7 @@ void spacedWords (Sequence& sequence, string const& pattern, vector<Word>& out)
                 spacedWord <<= 5;
                 spacedWord |= sequence.seq[i];
             }
-            i++;
+            ++i;
         }
         i = i - pattern.length();
         tmp.set_key(spacedWord);
@@ -158,35 +162,44 @@ void spacedWords (Sequence& sequence, string const& pattern, vector<Word>& out)
 int bucket (vector<Word>& sortedWords, int start)
 {
     int bucket_length = 1;
-    for (int i = start; sortedWords[i].key != sortedWords[i+1].key; i++)
+    while(sortedWords[start].key == sortedWords[start+1].key)
     {
-        bucket_length++;
+        ++bucket_length;
+        ++start;
     }
     return bucket_length;
 }
 
-vector <tuple<unsigned long long, int, int> > findMatches (vector<Word>& sw1, vector<Word>& sw2, vector<tuple<unsigned long long, int, int> >& out)
+void findMatches (vector<Word>& sw1, vector<Word>& sw2, vector<tuple<unsigned long long, int, int> >& out)
 {
+    cout << "Welcome inside findMatches!\n";
     int skip = 0;
     for (unsigned int i = 0; i < sw1.size(); ++i)
     {
-        cout << i << endl;
+        cout << sw1[i].key << "  >>>   " << sw1[i+1].key << endl;
         int bl1 = bucket(sw1, i);
+        cout << "bl1 = " << bl1 << endl;
         if (bl1 > 1)
         {
-            for (i; i < (i + bl1); ++i)
+            unsigned int limit1 = i + bl1 - 1;
+            for (i; i <= limit1; ++i)
             {
-                for (unsigned int j = 0; j < sw2.size(); ++j)
+                cout << "skip = " << skip << endl;
+                for (unsigned int j = 0 + skip; j < sw2.size(); ++j)
                 {
-                    j += skip;
+                    cout << sw2[j].key << "  >>>   " << sw2[j+1].key << endl;
                     int bl2 = bucket(sw2, j);
+                    cout << "bl2 = " << bl2 << endl;
                     if (bl2 > 1)
                     {
-                        for (j; j < (j + bl2); ++j)
+                        cout << "1. bucket ; 2. bucket\n";
+                        unsigned int limit2 = j + bl2 - 1;
+                        for (j; j <= limit2; ++j)
                         {
+                            cout << "j = " << j << " | bl2 = " << bl2 << endl;
                             if (sw1[i].key > sw2[j].key)
                             {
-                                skip++;
+                                skip += bl2 - 1;
                                 continue;
                             }
                             if (sw1[i].key < sw2[j].key)
@@ -195,28 +208,33 @@ vector <tuple<unsigned long long, int, int> > findMatches (vector<Word>& sw1, ve
                             }
                             if (sw1[i].key == sw2[j].key)
                             {
-                                skip++;
+                                cout << "match found =)\n" << endl; //kein skip, wird hoch gezählt, wenn 1.single
                                 tuple<unsigned long long, int, int> tmp (sw1[i].key, sw1[i].pos, sw2[j].pos);
                                 out.push_back(tmp);
+                                continue;
                             }
                         }
                     }
                     else
                     {
+                        cout << "1. bucket ; 2. single\n";
                         if (sw1[i].key > sw2[j].key)
                         {
-                            skip++;
+                            skip = j + 1;
+                            cout << "continue\n" << endl;
                             continue;
                         }
                         if (sw1[i].key < sw2[j].key)
                         {
+                            cout << "break\n" << endl;
                             break;
                         }
                         if (sw1[i].key == sw2[j].key)
                         {
-                            skip++;
+                            cout << "match found =)\n" << endl; //kein skip, wird hoch gezählt, wenn 1.single
                             tuple<unsigned long long, int, int> tmp (sw1[i].key, sw1[i].pos, sw2[j].pos);
                             out.push_back(tmp);
+                            break;
                         }
                     }
                 }
@@ -224,17 +242,20 @@ vector <tuple<unsigned long long, int, int> > findMatches (vector<Word>& sw1, ve
         }
         else
         {
-            for (unsigned int j = 0; j < sw2.size(); ++j)
+            for (unsigned int j = 0 + skip; j < sw2.size(); ++j)
             {
-                j += skip;
+                cout << "j = " << j << endl;
+                cout << sw2[j].key << "  >>>   " << sw2[j+1].key << endl;
                 int bl2 = bucket(sw2, j);
+                cout << "bl2 = " << bl2 << endl;
                 if (bl2 > 1)
                 {
+                    cout << "1. single ; 2. bucket\n";
                     for (j; j < (j + bl2); ++j)
                     {
                         if (sw1[i].key > sw2[j].key)
                         {
-                            skip++;
+                            skip += bl2 -1;
                             continue;
                         }
                         if (sw1[i].key < sw2[j].key)
@@ -243,34 +264,40 @@ vector <tuple<unsigned long long, int, int> > findMatches (vector<Word>& sw1, ve
                         }
                         if (sw1[i].key == sw2[j].key)
                         {
-                            skip++;
+                            skip = j + 1;
                             tuple<unsigned long long, int, int> tmp (sw1[i].key, sw1[i].pos, sw2[j].pos);
                             out.push_back(tmp);
+                            break;
                         }
                     }
                 }
                 else
                 {
+                    cout << "1. single ; 2.single\n";
                     if (sw1[i].key > sw2[j].key)
                     {
-                        skip++;
+                        skip = j + 1;
+                        cout << "continue\n" << endl;
                         continue;
                     }
                     if (sw1[i].key < sw2[j].key)
                     {
+                        cout << "break\n" << endl;
                         break;
+
                     }
                     if (sw1[i].key == sw2[j].key)
                     {
-                        skip++;
+                        skip = j + 1;
+                        cout << "match found =)\n" << endl;
                         tuple<unsigned long long, int, int> tmp (sw1[i].key, sw1[i].pos, sw2[j].pos);
                         out.push_back(tmp);
+                        break;
                     }
                 }
             }
         }
     }
-    return out;
 }
 
 int main(int argc, char **argv)
@@ -288,9 +315,21 @@ int main(int argc, char **argv)
         spacedWords(sequences[i], pattern, sw);
     }
 
+    /* TEST */
     for (unsigned int i = 0; i < sequences.size(); ++i)
     {
-        for (unsigned int j = sequences.size(); j > i; ++j)
+        cout << sequences[i].header << endl << "Found Spaced-Words:\n";
+        for (unsigned int j = 0; j < sequences[i].sorted_words.size(); ++j)
+        {
+            cout <<  sequences[i].sorted_words[j].key << " | Pos: " << sequences[i].sorted_words[j].pos << endl;
+        }
+        cout << endl;
+    }
+    /* TEST-ENDE */
+
+    for (unsigned int i = 0; i < sequences.size(); ++i)
+    {
+        for (unsigned int j = sequences.size() - 1; j > i; --j)
         {
             vector<tuple<unsigned long long, int, int> > matchVector;
             findMatches(sequences[i].sorted_words, sequences[j].sorted_words, matchVector);
@@ -303,17 +342,6 @@ int main(int argc, char **argv)
         }
     }
 
-    /* TEST */
-    for (unsigned int i = 0; i < sequences.size(); ++i)
-    {
-        cout << sequences[i].header << endl << "Found Spaced-Words:\n";
-        for (unsigned int j = 0; j < sequences[i].sorted_words.size(); ++j)
-        {
-            cout <<  sequences[i].sorted_words[j].key << " | Pos: " << sequences[i].sorted_words[j].pos << endl;
-        }
-        cout << endl;
-    }
-    /* TEST-ENDE */
 
     t = clock() - t;
     cout << "Time elapsed: " << t*1.0/CLOCKS_PER_SEC << "s\n";
