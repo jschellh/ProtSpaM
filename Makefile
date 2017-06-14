@@ -5,6 +5,7 @@ OBJDIR = ./obj/
 
 objects = $(addprefix $(OBJDIR), main.o score.o Sequence.o Word.o rand_pattern.o)
 
+Debug: all
 all: afpd
 
 afpd: $(objects)
