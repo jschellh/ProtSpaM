@@ -4,8 +4,11 @@
 #include <time.h>
 #include <algorithm>
 #include <tuple>
-#include "score.h"
+#include <string>
+#include <cmath>
 #include "Sequence.h"
+#include "score.h"
+#include "rand_pattern.h"
 using namespace std;
 
 vector<Sequence> parser (int argc, char **argv, vector<Sequence>& out)
@@ -223,15 +226,25 @@ void findMatches (vector<Word>& sw1, vector<Word>& sw2, vector<tuple<unsigned lo
     }
 }
 
+double calc_distance (double mmr)
+{
+    double distance = -log(1 - mmr - pow( (0.2 * mmr),2.0) );
+//    cout << distance << endl;
+    return distance;
+}
+
 int main(int argc, char **argv)
 {
     clock_t t;
     t = clock();
 
-    string pattern = argv[2];
+    int weight = atoi(argv[2]);
     int dc = atoi(argv[3]);
     int threshold = atoi(argv[4]);
-
+    string pattern = rand_pattern(weight, dc);
+    string filename = argv[1];
+    filename.erase(filename.end()-5, filename.end() ); // entfernt fasta Endung
+    filename.append("dm"); // fügt dm als Endung an
 
     vector<Sequence> sequences;
     parser(argc, argv, sequences);
@@ -253,23 +266,72 @@ int main(int argc, char **argv)
 //    }
 //    /* TEST-ENDE */
 
-
+    int length = sequences.size();
+    double distance[length][length];
     for (unsigned int i = 0; i < sequences.size(); ++i)
     {
+        distance[i][i] = 0;
         for (unsigned int j = sequences.size() - 1; j > i; --j)
         {
             vector<tuple<unsigned long long, int, int> > matchVector;
             findMatches(sequences[i].sorted_words, sequences[j].sorted_words, matchVector);
-            cout << "Matches zwischen " << sequences[i].header << " und " << sequences[j].header << " :\n";
-//            for (unsigned int k = 0; k < matchVector.size(); ++k)
-//            {
+//            cout << "Matches zwischen " << sequences[i].header << " und " << sequences[j].header << " :\n";
+            for (unsigned int k = 0; k < matchVector.size(); ++k)
+            {
 //                tuple<unsigned long long, int, int> print = matchVector[k];
 //                cout << get<0>(print) << " | (" << get<1>(print) << "," << get<2>(print) << ")\n";
-//            }
-            int mismatchrate = score(matchVector, sequences[i], sequences[j], pattern, dc, threshold);
+            }
+            double mismatch_rate = score(matchVector, sequences[i], sequences[j], pattern, dc, threshold);
+//            cout << mismatch_rate << endl;
+            distance[i][j] = calc_distance(mismatch_rate);
+//            cout << "calc_distance(mismatch_rate) = " << calc_distance(mismatch_rate) << endl;
         }
     }
 
+    for (unsigned int i = 1; i < sequences.size(); ++i)
+    {
+        for (unsigned int j = 0; j < i; ++j)
+        {
+            if (i != j)
+            {
+//            cout << "distance[i][j] = " << distance[i][j] << "   distance[j][i] = " << distance[j][i] << endl;
+            distance[i][j] = distance[j][i];
+            }
+        }
+    }
+
+    ofstream output_distance;
+    output_distance.open(filename);
+    output_distance << '\t' << sequences.size() << endl;
+    for (unsigned int i = 0; i < sequences.size(); ++i)
+    {
+        output_distance << sequences[i].header;
+        if (sequences[i].header.size() < 10)
+        {
+            for (unsigned int i = 10; i > sequences[i].header.size(); --i)
+            {
+                output_distance << " ";
+            }
+        }
+        for (unsigned int j = 0; j < sequences.size(); ++j)
+        {
+//            cout << distance[i][j] << endl;
+            if (distance[i][j] == 0)
+            {
+                output_distance << "  " << "0.000000";
+            }
+            else if (isnan(distance[i][j]) != 0)
+            {
+                output_distance << "  " << "5.000000";
+            }
+            else
+            {
+                output_distance << "  " << distance[i][j];
+            }
+        }
+        output_distance << endl;
+    }
+    output_distance.close();
 
     t = clock() - t;
     cout << "Time elapsed: " << t*1.0/CLOCKS_PER_SEC << "s\n";
