@@ -229,8 +229,23 @@ void findMatches (vector<Word>& sw1, vector<Word>& sw2, vector<tuple<unsigned lo
 double calc_distance (double mmr)
 {
     double distance = -log(1 - mmr - pow( (0.2 * mmr),2.0) );
-//    cout << distance << endl;
     return distance;
+}
+
+string delete_suffix (string file)
+{
+    string out;
+    int found = file.find(".");
+    if (found != string::npos)
+    {
+        out = file.substr(0, found);
+        cout << out << endl;
+        return out;
+    }
+    else
+    {
+        return file;
+    }
 }
 
 int main(int argc, char **argv)
@@ -239,13 +254,16 @@ int main(int argc, char **argv)
     t = clock();
 
     int weight = atoi(argv[2]);
+    if (weight > 12)
+    {
+        cerr << "weight > 12 not supported; you entered a weight of: " << weight << endl;
+        return 1;
+    }
     int dc = atoi(argv[3]);
     int threshold = atoi(argv[4]);
     string pattern = rand_pattern(weight, dc);
-    string filename = argv[1];
-    filename.erase(filename.end()-5, filename.end() ); // entfernt fasta Endung
-    filename.append("dm"); // fügt dm als Endung an
-
+    string filename = delete_suffix(argv[1]);
+    filename.append(".dm");
     vector<Sequence> sequences;
     parser(argc, argv, sequences);
     for (unsigned int i = 0; i < sequences.size(); ++i)
@@ -253,21 +271,10 @@ int main(int argc, char **argv)
         vector<Word> sw;
         spacedWords(sequences[i], pattern, sw);
     }
-
-//    /* TEST */
-//    for (unsigned int i = 0; i < sequences.size(); ++i)
-//    {
-//        cout << sequences[i].header << endl << "Found Spaced-Words:\n";
-//        for (unsigned int j = 0; j < sequences[i].sorted_words.size(); ++j)
-//        {
-//            cout <<  sequences[i].sorted_words[j].key << " | Pos: " << sequences[i].sorted_words[j].pos << endl;
-//        }
-//        cout << endl;
-//    }
-//    /* TEST-ENDE */
-
     int length = sequences.size();
     double distance[length][length];
+
+    #pragma omp parallel for
     for (unsigned int i = 0; i < sequences.size(); ++i)
     {
         distance[i][i] = 0;
@@ -275,16 +282,8 @@ int main(int argc, char **argv)
         {
             vector<tuple<unsigned long long, int, int> > matchVector;
             findMatches(sequences[i].sorted_words, sequences[j].sorted_words, matchVector);
-//            cout << "Matches zwischen " << sequences[i].header << " und " << sequences[j].header << " :\n";
-            for (unsigned int k = 0; k < matchVector.size(); ++k)
-            {
-//                tuple<unsigned long long, int, int> print = matchVector[k];
-//                cout << get<0>(print) << " | (" << get<1>(print) << "," << get<2>(print) << ")\n";
-            }
             double mismatch_rate = score(matchVector, sequences[i], sequences[j], pattern, dc, threshold);
-//            cout << mismatch_rate << endl;
             distance[i][j] = calc_distance(mismatch_rate);
-//            cout << "calc_distance(mismatch_rate) = " << calc_distance(mismatch_rate) << endl;
         }
     }
 
@@ -294,7 +293,6 @@ int main(int argc, char **argv)
         {
             if (i != j)
             {
-//            cout << "distance[i][j] = " << distance[i][j] << "   distance[j][i] = " << distance[j][i] << endl;
             distance[i][j] = distance[j][i];
             }
         }
@@ -315,7 +313,6 @@ int main(int argc, char **argv)
         }
         for (unsigned int j = 0; j < sequences.size(); ++j)
         {
-//            cout << distance[i][j] << endl;
             if (distance[i][j] == 0)
             {
                 output_distance << "  " << "0.000000";
