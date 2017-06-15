@@ -15,7 +15,6 @@ int bucket (vector<tuple<unsigned long long, int, int> > matches, int start)
 
 double score(vector<tuple<unsigned long long,int, int> > &matches, Sequence& seq1, Sequence& seq2, string pattern, int& dc, int& threshold)
 {
-//        cout << "Welcome inside Score-Function =)\n";
         const int rows_col = 24;
         int blosum62 [rows_col][rows_col] =
         {
@@ -55,7 +54,6 @@ double score(vector<tuple<unsigned long long,int, int> > &matches, Sequence& seq
             int bl = bucket(matches, i);
             if (bl > 1)
             {
-//                cout << "----Bucket----\n";
                 tuple<int, int> best (threshold - 1, 0);
                 unsigned int limit = i + bl;
                 for (i; i < limit; ++i)
@@ -71,7 +69,6 @@ double score(vector<tuple<unsigned long long,int, int> > &matches, Sequence& seq
                     {
                         if (pattern[j] == '0')
                         {
-//                            cout << (int) match_1[j] << " | " << (int) match_2[j] << endl;
                             score += blosum62[(int) match_1[j] ][ (int) match_2[j] ];
                             if ( (int) match_1[j] != (int) match_2[j])
                             {
@@ -86,14 +83,12 @@ double score(vector<tuple<unsigned long long,int, int> > &matches, Sequence& seq
                             best = make_tuple(score, mismatches);
                         }
                     }
-//                    cout << i << ". Durchgang erfolgreich!\n";
                 }
-                if (get<1>(best) >= threshold)
+                if (get<0>(best) >= threshold)
                 {
                     total_mismatches += get<1>(best);
                     dc_pos += dc;
                 }
-//                cout << "----Bucket-Ende----\n";
             }
             else
             {
@@ -107,7 +102,6 @@ double score(vector<tuple<unsigned long long,int, int> > &matches, Sequence& seq
                 {
                     if (pattern[j] == '0')
                     {
-//                        cout << (int) match_1[j] << " | " << (int) match_2[j] << endl;
                         score += blosum62[(int) match_1[j] ][ (int) match_2[j] ];
                         if ( (int) match_1[j] != (int) match_2[j])
                         {
@@ -121,11 +115,8 @@ double score(vector<tuple<unsigned long long,int, int> > &matches, Sequence& seq
                     dc_pos += dc;
                 }
              }
-//             cout << i << ". Durchgang erfolgreich!\n";
          }
-//         cout << "total_mismatches = " << total_mismatches << "   dc_pos = " << dc_pos << endl;
-//         cout << "total_mismatches / dc_pos = " << (double) total_mismatches/dc_pos << endl;
+
          mismatch_rate = (double) total_mismatches / dc_pos;
-//         cout << "mismatch_rate = " << mismatch_rate << endl;
          return mismatch_rate;
 }
