@@ -185,7 +185,7 @@ void findMatches (vector<Word>& sw1, vector<Word>& sw2, vector<tuple<unsigned lo
                             }
                             if (sw1[i].key == sw2[j].key)
                             {
-                                tuple<unsigned long long,int, int> tmp (sw1[k].key, sw1[k].pos, sw2[l].pos);
+                                tuple<unsigned long long,int, int> tmp (sw1[i].key, sw1[i].pos, sw2[j].pos);
                                 out.push_back(tmp);
 								continue;
                             }
@@ -203,9 +203,9 @@ void findMatches (vector<Word>& sw1, vector<Word>& sw2, vector<tuple<unsigned lo
                         {
 							break;
                         }
-                        if (sw1[k].key == sw2[j].key)
+                        if (sw1[i].key == sw2[j].key)
                         {
-                            tuple<unsigned long long,int, int> tmp (sw1[k].key, sw1[k].pos, sw2[j].pos);
+                            tuple<unsigned long long,int, int> tmp (sw1[i].key, sw1[i].pos, sw2[j].pos);
                             out.push_back(tmp);
                             break;
                         }
@@ -322,9 +322,11 @@ int main(int argc, char **argv)
             cout << " | " << read_word(sw[i].key, weight) << endl;
         }
         cout << endl;
+    }
 
     int length = sequences.size();
     double distance[length][length];
+
 
     for (unsigned int i = 0; i < sequences.size(); ++i)
     {
@@ -335,7 +337,7 @@ int main(int argc, char **argv)
         {
 			cout << j << ". sequence (" << omp_get_thread_num() << ")\n" << endl;
             vector<tuple<unsigned long long, int, int> > matchVector;
-            findMatches(sequences[i].sorted_words, sequences[j].sorted_words, matchVector);
+            findMatches(sequences[i].sorted_words, sequences[j].sorted_words, matchVector, weight);
 
 			cout << "Matches found:\n";
             for (unsigned int k = 0; k < matchVector.size(); ++k)
