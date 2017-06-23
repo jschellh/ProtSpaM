@@ -3,7 +3,7 @@ IDIR = ./include
 CFLAGS = -c -Wall -std=c++11 -I $(IDIR)
 OBJDIR = ./obj/
 
-objects = $(addprefix $(OBJDIR), main.o score.o Sequence.o Word.o rand_pattern.o)
+objects = $(addprefix $(OBJDIR), main.o score.o Sequence.o Word.o rand_pattern.o calc_matches.o)
 
 Debug: all
 all: afpd
@@ -26,6 +26,9 @@ $(OBJDIR)Word.o: src/Word.cpp
 
 $(OBJDIR)rand_pattern.o: src/rand_pattern.cpp
 	$(CC) $(CFLAGS) src/rand_pattern.cpp -o $@
+
+$(OBJDIR)calc_matches.o: src/calc_matches.cpp
+	$(CC) $(CFLAGS) src/calc_matches.cpp -o $@
 
 clean:
 	rm -rf $(OBJDIR)*.o bin/Debug/afpd	
