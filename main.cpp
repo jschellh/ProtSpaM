@@ -2,13 +2,12 @@
 #include <fstream>
 #include <vector>
 #include <algorithm>
-#include <tuple>
 #include <string>
 #include <cmath>
 #include <omp.h>
 #include "Sequence.h"
-#include "score.h"
 #include "rand_pattern.h"
+#include "calc_matches.h"
 using namespace std;
 
 vector<string> translate = {"A","R","N","D","C","Q","E","G","H","I","L","K","M","F","P","S","T","W","Y","V","B","Z","X","*"};
@@ -141,134 +140,6 @@ void spacedWords (Sequence& sequence, string const& pattern, vector<Word>& out, 
     sequence.set_words(out);
 }
 
-int bucket (vector<Word>& sortedWords, int start)
-{
-    int bucket_length = 1;
-    while (sortedWords[start].key == sortedWords[start+1].key)
-    {
-        ++bucket_length;
-        ++start;
-    }
-    return bucket_length;
-}
-
-void findMatches (vector<Word>& sw1, vector<Word>& sw2, vector<tuple<unsigned long long, int, int> >& out, int weight)
-{
-    int skip = 0;
-    for (unsigned int i = 0; i < sw1.size(); ++i)
-    {
-        cout << "SpacedWord 1 = " << read_word(sw1[i].key, weight);
-        int bl1 = bucket(sw1, i);
-        if (bl1 > 1)
-        {
-            unsigned int limit1 = i + bl1 - 1;
-            for (i; i <= limit1; ++i)
-            {
-                for (unsigned int j = 0 + skip; j < sw2.size(); ++j)
-                {
-                    cout << "   SpacedWord 2 = " << read_word(sw2[j].key, weight) << endl;
-                    int bl2 = bucket(sw2, j);
-                    if (bl2 > 1)
-                    {
-                        cout << " & (bucket-bucket) j = " << j << endl;
-                        unsigned int limit2 = j + bl2 - 1;
-                        for (j; j <= limit2; ++j)
-                        {
-                            if (sw1[i].key > sw2[j].key)
-                            {
-                                skip += bl2 - 1;
-                                continue;
-                            }
-                            if (sw1[i].key < sw2[j].key)
-                            {
-                                break;
-                            }
-                            if (sw1[i].key == sw2[j].key)
-                            {
-                                tuple<unsigned long long,int, int> tmp (sw1[i].key, sw1[i].pos, sw2[j].pos);
-                                out.push_back(tmp);
-								continue;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        cout << " & (if-single) j = " << j << endl;
-                        if (sw1[i].key > sw2[j].key)
-                        {
-                            skip = j + 1;
-                            continue;
-                        }
-                        if (sw1[i].key < sw2[j].key)
-                        {
-							break;
-                        }
-                        if (sw1[i].key == sw2[j].key)
-                        {
-                            tuple<unsigned long long,int, int> tmp (sw1[i].key, sw1[i].pos, sw2[j].pos);
-                            out.push_back(tmp);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (unsigned int j = 0 + skip; j < sw2.size(); ++j)
-            {
-                cout << "   SpacedWord 2 = " << read_word(sw2[j].key, weight) << endl;
-                int bl2 = bucket(sw2, j);
-                if (bl2 > 1)
-                {
-                    cout << " & (else bucket) j = " << j << endl;
-                    unsigned int limit = j + bl2 - 1;
-                    for (j; j <= limit; ++j)
-                    {
-                        if (sw1[i].key > sw2[j].key)
-                        {
-                            skip += bl2 - 1;
-							continue;
-                        }
-                        if (sw1[i].key < sw2[j].key)
-                        {
-                            break;
-                        }
-                        if (sw1[i].key == sw2[j].key)
-                        {
-                            skip = j + 1;
-                            tuple<unsigned long long,int, int> tmp (sw1[i].key, sw1[i].pos, sw2[j].pos);
-                            out.push_back(tmp);
-							break;
-                        }
-                    }
-                }
-                else
-                {
-                    cout << " & (else) j = " << j << endl;
-                    if (sw1[i].key > sw2[j].key)
-                    {
-                        skip = j + 1;
-						continue;
-                    }
-                    if (sw1[i].key < sw2[j].key)
-                    {
-                        break;
-
-                    }
-                    if (sw1[i].key == sw2[j].key)
-                    {
-                        skip = j + 1;
-                        tuple<unsigned long long,int, int> tmp (sw1[i].key, sw1[i].pos, sw2[j].pos);
-                        out.push_back(tmp);
-                        break;
-                    }
-                }
-            }
-        }
-    }
-}
-
 double calc_distance (double mmr)
 {
     double distance = -log(1 - mmr - pow( (0.2 * mmr),2.0) );
@@ -310,18 +181,18 @@ int main(int argc, char **argv)
     vector<Sequence> sequences;
     parser(argc, argv, sequences);
 
-//    #pragma omp parallel for
+    #pragma omp parallel for
     for (unsigned int i = 0; i < sequences.size(); ++i)
     {
-        cout << "Spezies " << sequences[i].header << ":\n";
+//        cout << "Spezies " << sequences[i].header << ":\n";
         vector<Word> sw;
         spacedWords(sequences[i], pattern, sw, weight);
-        for (unsigned int i = 0; i < sw.size(); ++i)
-        {
-            cout << sw[i].key << " | " << sw[i].pos;
-            cout << " | " << read_word(sw[i].key, weight) << endl;
-        }
-        cout << endl;
+//        for (unsigned int i = 0; i < sw.size(); ++i)
+//        {
+//            cout << sw[i].key << " | " << sw[i].pos;
+//            cout << " | " << read_word(sw[i].key, weight) << endl;
+//        }
+//        cout << endl;
     }
 
     int length = sequences.size();
@@ -330,27 +201,15 @@ int main(int argc, char **argv)
 
     for (unsigned int i = 0; i < sequences.size(); ++i)
     {
-		cout << "checking " << i << ". sequence with \n";
+//		cout << "checking " << i << ". sequence with \n";
         distance[i][i] = 0;
 		#pragma omp parallel for
         for (unsigned int j = sequences.size() - 1; j > i; --j)
         {
-			cout << j << ". sequence (" << omp_get_thread_num() << ")\n" << endl;
-            vector<tuple<unsigned long long, int, int> > matchVector;
-            findMatches(sequences[i].sorted_words, sequences[j].sorted_words, matchVector, weight);
-
-			cout << "Matches found:\n";
-            for (unsigned int k = 0; k < matchVector.size(); ++k)
-            {
-
-                cout << read_word(get<0>(matchVector[k]), weight) << " | (" << get<1>(matchVector[k]) << "," << get<2>(matchVector[k]) << ")\n";
-            }
-            cout << "Alles ging gut!\n";
-            double mismatch_rate = score(matchVector, sequences[i], sequences[j], pattern, dc, threshold);
-            cout << "Hier auch noch alles gut!\n";
+//			cout << j << ". sequence (" << omp_get_thread_num() << ")\n" << endl;
+            double mismatch_rate = calc_matches(sequences[i].sorted_words, sequences[j].sorted_words, sequences[i].seq, sequences[j].seq, weight, dc, threshold, pattern);
             distance[i][j] = calc_distance(mismatch_rate);
             distance[j][i] = distance[i][j];
-            cout << "Fertig! Alles gut gegangen!\n";
         }
     }
 
