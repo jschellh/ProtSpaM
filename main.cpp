@@ -6,25 +6,9 @@
 #include <cmath>
 #include <omp.h>
 #include "Sequence.h"
-#include "rand_pattern.h"
+#include "misc.h"
 #include "calc_matches.h"
 using namespace std;
-
-vector<string> translate = {"A","R","N","D","C","Q","E","G","H","I","L","K","M","F","P","S","T","W","Y","V","B","Z","X","*"};
-
-string read_word (unsigned long long spaced_word, unsigned int weight)
-{
-    string out;
-    int i = 0;
-    while (out.size() < weight)
-    {
-        int letter = spaced_word & ((1 << 5) - 1);
-//        cout << letter << " >>> " << translate[letter] << endl;
-        spaced_word >>= 5;
-        out.insert(i,translate[letter]);
-    }
-    return out;
-}
 
 vector<Sequence> parser (int argc, char **argv, vector<Sequence>& out)
 {
@@ -115,53 +99,6 @@ vector<Sequence> parser (int argc, char **argv, vector<Sequence>& out)
     return out;
 }
 
-void spacedWords (Sequence& sequence, string const& pattern, vector<Word>& out, int weight)
-{
-    for (unsigned int i = 0; i < (sequence.seq.size() - pattern.length() + 1); ++i)
-    {
-        Word tmp;
-        unsigned long long spacedWord = 0;
-        for (unsigned int j = 0; j < pattern.size(); ++j)
-        {
-            if (pattern[j] == '1')
-            {
-                spacedWord <<= 5;
-                spacedWord |= sequence.seq[i];
-            }
-            ++i;
-        }
-//        cout << read_word(spacedWord, weight) << endl;
-        i = i - pattern.length();
-        tmp.set_key(spacedWord);
-        tmp.set_pos(i);
-        out.push_back(tmp);
-    }
-    sort(out.begin(), out.end() );
-    sequence.set_words(out);
-}
-
-double calc_distance (double mmr)
-{
-    double distance = -log(1 - mmr - pow( (0.2 * mmr),2.0) );
-    return distance;
-}
-
-string delete_suffix (string file)
-{
-    string out;
-    unsigned int found = file.find(".");
-    if (found != string::npos)
-    {
-        out = file.substr(0, found);
-        cout << out << endl;
-        return out;
-    }
-    else
-    {
-        return file;
-    }
-}
-
 int main(int argc, char **argv)
 {
     double start = omp_get_wtime();
@@ -172,10 +109,23 @@ int main(int argc, char **argv)
         cerr << "weight > 12 not supported; you entered a weight of: " << weight << endl;
         return 1;
     }
+
     int dc = atoi(argv[3]);
     int threshold = atoi(argv[4]);
-    string pattern = rand_pattern(weight, dc);
-    cout << pattern << endl;
+    int pattern_number;
+
+    if (argc == 5)
+    {
+        pattern_number = 1;
+    }
+    if (argc == 6)
+    {
+        pattern_number = atoi(argv[5]);
+    }
+
+    vector<vector<char>> patterns = rand_pattern(weight, dc, pattern_number);
+    print_patterns(patterns);
+
     string filename = delete_suffix(argv[1]);
     filename.append(".dm");
     vector<Sequence> sequences;
@@ -186,7 +136,7 @@ int main(int argc, char **argv)
     {
 //        cout << "Spezies " << sequences[i].header << ":\n";
         vector<Word> sw;
-        spacedWords(sequences[i], pattern, sw, weight);
+        spacedWords(sequences[i], patterns[0], sw, weight);
 //        for (unsigned int i = 0; i < sw.size(); ++i)
 //        {
 //            cout << sw[i].key << " | " << sw[i].pos;
@@ -198,7 +148,6 @@ int main(int argc, char **argv)
     int length = sequences.size();
     double distance[length][length];
 
-
     for (unsigned int i = 0; i < sequences.size(); ++i)
     {
 //		cout << "checking " << i << ". sequence with \n";
@@ -207,7 +156,7 @@ int main(int argc, char **argv)
         for (unsigned int j = sequences.size() - 1; j > i; --j)
         {
 //			cout << j << ". sequence (" << omp_get_thread_num() << ")\n" << endl;
-            double mismatch_rate = calc_matches(sequences[i].sorted_words, sequences[j].sorted_words, sequences[i].seq, sequences[j].seq, weight, dc, threshold, pattern);
+            double mismatch_rate = calc_matches(sequences[i].sorted_words[0], sequences[j].sorted_words[0], sequences[i].seq, sequences[j].seq, weight, dc, threshold, patterns[0]);
             distance[i][j] = calc_distance(mismatch_rate);
             distance[j][i] = distance[i][j];
         }
