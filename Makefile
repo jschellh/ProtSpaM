@@ -3,18 +3,17 @@ IDIR = ./include
 CFLAGS = -c -Wall -std=c++11 -I $(IDIR)
 OBJDIR = ./obj/
 
-objects = $(addprefix $(OBJDIR), main.o Sequence.o Word.o misc.o calc_matches.o)
+objects = $(addprefix $(OBJDIR), main.o Sequence.o Word.o misc.o calc_matches.o parser.o)
 
 Debug: all
 all: afpd
 
 afpd: $(objects)
 	$(CC) -Wall -o bin/Debug/afpd $(objects)
-	cp bin/Debug/afpd ~/bin/
+	cp bin/Debug/afpd ~/bin/afpd
 
 $(OBJDIR)main.o: main.cpp
 	$(CC) $(CFLAGS) main.cpp -o $@
-	cp bin/Debug/afpd ~/bin/afpd
 
 $(OBJDIR)Sequence.o: src/Sequence.cpp
 	$(CC) $(CFLAGS) src/Sequence.cpp -o $@
@@ -27,6 +26,9 @@ $(OBJDIR)misc.o: src/misc.cpp
 
 $(OBJDIR)calc_matches.o: src/calc_matches.cpp
 	$(CC) $(CFLAGS) src/calc_matches.cpp -o $@
+
+$(OBJDIR)parser.o: src/parser.cpp
+	$(CC) $(CFLAGS) src/parser.cpp -o $@
 
 clean:
 	rm -rf $(OBJDIR)*.o bin/Debug/afpd	~/bin/afpd
