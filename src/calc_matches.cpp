@@ -57,14 +57,14 @@ int multimatch (vector<Word>& sortedWords, int start)
     return multimatch_length;
 }
 
-double calc_matches(vector<Word>& sw1, vector<Word>& sw2, vector<char>& seq1, vector<char>& seq2, int& weight, int& dc, int& threshold, string pattern)
+double calc_matches(vector<Word>& sw1, vector<Word>& sw2, vector<char>& seq1, vector<char>& seq2, int& weight, int& dc, int& threshold, vector<char> pattern)
 {
     int skip = 0;
     int total_mismatches = 0;
     int total_dc = 0;
     int score;
     int mismatches;
-    bool multi_single = false;
+    bool multi_done = false;
 
 //    cout << "sw1.size() = " << sw1.size() << " | " << "sw2.size() = " << sw2.size() << endl;
     for (unsigned int i = 0; i < sw1.size(); ++i)
@@ -126,6 +126,7 @@ double calc_matches(vector<Word>& sw1, vector<Word>& sw2, vector<char>& seq1, ve
                                 if (i == limit1 && j == limit2)
                                 {
                                     skip += bl2;
+                                    multi_done = true;
                                     break;
                                 }
                             }
@@ -172,7 +173,7 @@ double calc_matches(vector<Word>& sw1, vector<Word>& sw2, vector<char>& seq1, ve
                             if (i == limit1)
                             {
                                 skip = j + 1;
-                                multi_single = true;
+                                multi_done = true;
                                 break;
                             }
                             break;
@@ -185,10 +186,10 @@ double calc_matches(vector<Word>& sw1, vector<Word>& sw2, vector<char>& seq1, ve
                 total_mismatches += best[1];
                 total_dc += dc;
             }
-            if (bl1 > 1 && multi_single)
+            if (bl1 > 1 && multi_done)
             {
                 --i;
-                multi_single = false;
+                multi_done = false;
             }
         }
         else
