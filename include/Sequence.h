@@ -10,7 +10,9 @@ class Sequence
     public:
         std::string header;
         std::vector<char> seq;
-        std::vector<Word> sorted_words;
+        std::vector<std::vector<Word> > sorted_words;
+        std::vector<int> mismatches;
+        std::vector<int> dc_pos;
         void set_header (std::string);
         void clear_header ();
         void set_seq (char);

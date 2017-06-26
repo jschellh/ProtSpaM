@@ -1,17 +1,5 @@
 #include "Sequence.h"
 
-//class Sequence
-//{
-//    public:
-//        string header;
-//        vector<char> seq;
-//        vector<Word> sorted_words;
-//        void set_header (string);
-//        void clear_header ();
-//        void set_seq (char);
-//        void clear_seq ();
-//        void set_words (vector<Word>);
-//};
 using namespace std;
 
 void Sequence::set_header(string x)
@@ -37,5 +25,5 @@ void Sequence::clear_seq()
 void Sequence::set_words(vector<Word> x)
 {
     sort(x.begin(), x.end() );
-    sorted_words = x;
+    sorted_words.push_back(x);
 }
