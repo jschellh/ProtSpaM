@@ -31,7 +31,7 @@ int main(int argc, char **argv)
     {
         pattern_number = 1;
     }
-    if (argc == 6)
+    else if (argc == 6)
     {
         pattern_number = atoi(argv[5]);
     }
@@ -61,15 +61,38 @@ int main(int argc, char **argv)
     int length = sequences.size();
     double distance[length][length];
 
+    vector<int> result;
+    vector<vector<int> > mismatches_dc;
     for (unsigned int i = 0; i < sequences.size(); ++i)
     {
 //		cout << "checking " << i << ". sequence with \n";
         distance[i][i] = 0;
-		#pragma omp parallel for
+//		#pragma omp parallel for
         for (unsigned int j = sequences.size() - 1; j > i; --j)
         {
-//			cout << j << ". sequence (" << omp_get_thread_num() << ")\n" << endl;
-            double mismatch_rate = calc_matches(sequences[i].sorted_words[0], sequences[j].sorted_words[0], sequences[i].seq, sequences[j].seq, weight, dc, threshold, patterns[0]);
+//			cout << j << ". sequence (" << omp_get_thread_num() << ")" << endl;
+            mismatches_dc.clear();
+//            result.clear();
+            for (unsigned int pat = 0; pat < patterns.size(); ++pat)
+            {
+//                cout << "Pattern: ";
+//                print_pattern(patterns[pat]);
+//                cout << endl;
+                result = calc_matches(sequences[i].sorted_words[0], sequences[j].sorted_words[0], sequences[i].seq, sequences[j].seq, weight, dc, threshold, patterns[pat]);
+                mismatches_dc.push_back(result);
+            }
+            int mismatch_sum = 0;
+            int dc_sum = 0;
+            for (unsigned int k = 0; k < mismatches_dc.size(); ++k)
+            {
+//                cout << "mismatches_dc[k][0] = " << mismatches_dc[k][0] << endl;
+                mismatch_sum += mismatches_dc[k][0];
+//                cout << "mismatches_dc[k][1] = " << mismatches_dc[k][1] << endl;
+                dc_sum += mismatches_dc[k][1];
+//                cout << "mismatch_sum = " << mismatch_sum << " | dc_sum = " << dc_sum << endl;
+            }
+            double mismatch_rate = (double) mismatch_sum / dc_sum;
+//            cout << "mismatch_rate = " << mismatch_rate << endl;
             distance[i][j] = calc_distance(mismatch_rate);
             distance[j][i] = distance[i][j];
         }

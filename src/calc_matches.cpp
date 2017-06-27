@@ -57,7 +57,7 @@ int multimatch (vector<Word>& sortedWords, int start)
     return multimatch_length;
 }
 
-double calc_matches(vector<Word>& sw1, vector<Word>& sw2, vector<char>& seq1, vector<char>& seq2, int& weight, int& dc, int& threshold, vector<char> pattern)
+vector<int> calc_matches (vector<Word>& sw1, vector<Word>& sw2, vector<char>& seq1, vector<char>& seq2, int& weight, int& dc, int& threshold, vector<char> pattern)
 {
     int skip = 0;
     int total_mismatches = 0;
@@ -299,7 +299,8 @@ double calc_matches(vector<Word>& sw1, vector<Word>& sw2, vector<char>& seq1, ve
             }
         }
     }
-    double mismatch_rate = (double) total_mismatches / total_dc;
-//    cout << "mismatch_rate = " << total_mismatches << " / " << total_dc << " | " << mismatch_rate << endl;
-    return mismatch_rate;
+    vector<int> result;
+    result.push_back(total_mismatches);
+    result.push_back(total_dc);
+    return result;
 }

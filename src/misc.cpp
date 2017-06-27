@@ -5,7 +5,7 @@ using namespace std;
 /* Prints out all the patterns used */
 void print_patterns (vector<vector<char> > patterns)
 {
-    cout << "Patterns used: ";
+    cout << "Patterns used:\n";
     for (unsigned int i = 0; i < patterns.size(); ++i)
     {
 
@@ -13,7 +13,20 @@ void print_patterns (vector<vector<char> > patterns)
         {
             cout << patterns[i][j];
         }
+        if (i == patterns.size() - 1)
+        {
+            break;
+        }
         cout << " | ";
+    }
+    cout << endl;
+}
+
+void print_pattern (vector<char> pattern)
+{
+    for (unsigned int i = 0; i < pattern.size(); ++i)
+    {
+        cout << pattern[i];
     }
     cout << endl;
 }

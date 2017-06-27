@@ -9,6 +9,7 @@
 #include "Word.h"
 
         void print_patterns (std::vector<std::vector<char> > patterns);
+        void print_pattern (std::vector<char> pattern);
         std::string read_word (unsigned long long spaced_word, unsigned int weight);
         void spacedWords (Sequence& sequence, std::vector<char> const& pattern, std::vector<Word>& out, int weight);
         double calc_distance (double mmr);
