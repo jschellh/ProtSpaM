@@ -67,7 +67,7 @@ int main(int argc, char **argv)
     {
 //		cout << "checking " << i << ". sequence with \n";
         distance[i][i] = 0;
-//		#pragma omp parallel for
+	#pragma omp parallel for private (result, mismatches_dc)
         for (unsigned int j = sequences.size() - 1; j > i; --j)
         {
 //			cout << j << ". sequence (" << omp_get_thread_num() << ")" << endl;
