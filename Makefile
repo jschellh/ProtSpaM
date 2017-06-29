@@ -9,10 +9,13 @@ Debug: all
 all: afpd
 
 afpd: $(objects)
+	mkdir -p bin/Debug
 	$(CC) -Wall -o bin/Debug/afpd $(objects)
+	mkdir -p ~/bin
 	cp bin/Debug/afpd ~/bin/afpd
 
 $(OBJDIR)main.o: main.cpp
+	mkdir -p obj
 	$(CC) $(CFLAGS) main.cpp -o $@
 
 $(OBJDIR)Sequence.o: src/Sequence.cpp
