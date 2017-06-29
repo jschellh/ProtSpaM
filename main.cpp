@@ -5,7 +5,6 @@
 #include <string>
 #include <cmath>
 #include <omp.h>
-#include <math.h>
 #include "Sequence.h"
 #include "misc.h"
 #include "calc_matches.h"
@@ -111,7 +110,7 @@ int main(int argc, char **argv)
             {
                 output_distance << "0.000000" << "  " ;
             }
-            else if (isnan( (double) distance[i][j]) != 0)
+            else if (std::isnan(distance[i][j]) != 0)
             {
                 output_distance << "5.000000"  << "  " ;
             }
