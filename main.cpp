@@ -78,7 +78,7 @@ int main(int argc, char **argv)
 //                cout << "Pattern: ";
 //                print_pattern(patterns[pat]);
 //                cout << endl;
-                result = calc_matches(sequences[i].sorted_words[0], sequences[j].sorted_words[0], sequences[i].seq, sequences[j].seq, weight, dc, threshold, patterns[pat]);
+                result = calc_matches(sequences[i].sorted_words[pat], sequences[j].sorted_words[pat], sequences[i].seq, sequences[j].seq, weight, dc, threshold, patterns[pat]);
                 mismatches_dc.push_back(result);
             }
             int mismatch_sum = 0;
