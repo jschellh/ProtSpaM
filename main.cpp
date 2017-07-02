@@ -49,15 +49,18 @@ int main(int argc, char **argv)
     {
 //        cout << "Spezies " << sequences[i].header << ":\n";
         vector<Word> sw;
-        spacedWords(sequences[i], patterns[0], sw, weight);
-//        for (unsigned int i = 0; i < sw.size(); ++i)
-//        {
-//            cout << sw[i].key << " | " << sw[i].pos;
-//            cout << " | " << read_word(sw[i].key, weight) << endl;
-//        }
-//        cout << endl;
-    }
+        for (unsigned int pat = 0; pat < patterns.size(); ++pat)
+        {
+            spacedWords(sequences[i], patterns[pat], sw, weight);
+    //        for (unsigned int i = 0; i < sw.size(); ++i)
+    //        {
+    //            cout << sw[i].key << " | " << sw[i].pos;
+    //            cout << " | " << read_word(sw[i].key, weight) << endl;
+    //        }
+    //        cout << endl;
 
+        }
+    }
     int length = sequences.size();
     double distance[length][length];
 
