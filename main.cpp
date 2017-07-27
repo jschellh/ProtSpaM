@@ -9,6 +9,9 @@
 #include "misc.h"
 #include "calc_matches.h"
 #include "parser.h"
+#include "rasbimp.hpp"
+#include "rasbhari.hpp"
+#include "patternset.hpp"
 
 using namespace std;
 
@@ -36,13 +39,24 @@ int main(int argc, char **argv)
         pattern_number = atoi(argv[5]);
     }
 
-    vector<vector<char>> patterns = rand_pattern(weight, dc, pattern_number);
-    print_patterns(patterns);
-
     string filename = delete_suffix(argv[1]);
     filename.append(".dm");
     vector<Sequence> sequences;
-    parser(argc, argv, sequences);
+//    parser(argc, argv, sequences);
+
+
+    /* Erstellen des Patternsets */
+    rasbhari rasb_set = rasb_implement::hillclimb_oc_iterative(pattern_number, weight, dc, dc);
+    patternset PatSet = rasb_set.pattern_set();
+    vector<vector<char> > patterns;
+    for (unsigned int i = 0; i < PatSet.size(); ++i)
+    {
+        string pattern = PatSet[i].to_string();
+        vector<char> tmp(pattern.begin(), pattern.end());
+        patterns.push_back(tmp);
+    }
+    print_patterns(patterns);
+    /* ------------------------- */
 
     #pragma omp parallel for
     for (unsigned int i = 0; i < sequences.size(); ++i)
@@ -101,30 +115,7 @@ int main(int argc, char **argv)
         }
     }
 
-    ofstream output_distance;
-    output_distance.open(filename);
-    output_distance << '\t' << sequences.size() << endl;
-    for (unsigned int i = 0; i < sequences.size(); ++i)
-    {
-        output_distance << sequences[i].header;
-        for (unsigned int j = 0; j < sequences.size(); ++j)
-        {
-            if (distance[i][j] == 0)
-            {
-                output_distance << "0.000000" << "  " ;
-            }
-            else if (std::isnan(distance[i][j]) != 0)
-            {
-                output_distance << "5.000000"  << "  " ;
-            }
-            else
-            {
-                output_distance << distance[i][j] << "  " ;
-            }
-        }
-        output_distance << endl;
-    }
-    output_distance.close();
+
 
     double finished = omp_get_wtime();
     double exec_time = finished - start;
