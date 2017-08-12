@@ -62,9 +62,9 @@ int main(int argc, char **argv)
     for (unsigned int i = 0; i < sequences.size(); ++i)
     {
 //        cout << "Spezies " << sequences[i].header << ":\n";
-        vector<Word> sw;
         for (unsigned int pat = 0; pat < patterns.size(); ++pat)
         {
+            vector<Word> sw;
             spacedWords(sequences[i], patterns[pat], sw, weight);
     //        for (unsigned int i = 0; i < sw.size(); ++i)
     //        {
