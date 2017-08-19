@@ -97,9 +97,9 @@ string delete_suffix (string file)
 }
 
 /* Generates patterns (pat_number times) */
-vector<vector<char> > rand_pattern(int w, int d, int pat_number){
+vector<vector<char> > rand_pattern(int w, int d, int pat_number)
+{
     vector<vector<char> > pattern;
-
     for (unsigned int i = 0; i < pat_number; ++i)
     {
         int lg = w + d;
@@ -121,4 +121,27 @@ vector<vector<char> > rand_pattern(int w, int d, int pat_number){
         pattern.push_back(tmp);
     }
     return pattern;
+}
+
+void time_elapsed(double start)
+{
+    double finished = omp_get_wtime();
+    double exec_time = finished - start;
+
+    int hours = exec_time / 3600;
+    int minutes = (exec_time - (3600 * hours) ) / 60;
+    int seconds = exec_time - (3600 * hours) - (60 * minutes);
+
+    if (hours != 0)
+    {
+        cout << "Time elapsed: " << hours << "h" << minutes << "m" << seconds << "s\n";
+    }
+    else if (minutes != 0)
+    {
+        cout << "Time elapsed: " << minutes << "m" << seconds << "s\n";
+    }
+    else
+    {
+        cout << "Time elapsed: " << exec_time << "s\n";
+    }
 }

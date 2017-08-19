@@ -5,6 +5,7 @@
 #include <string>
 #include <chrono>
 #include <random>
+#include <omp.h>
 #include "Sequence.h"
 #include "Word.h"
 
@@ -15,5 +16,5 @@
         double calc_distance (double mmr);
         std::string delete_suffix (std::string file);
         std::vector<std::vector<char> > rand_pattern (int w, int d, int pat_number);
-
+        void time_elapsed(double start);
 #endif // MISC_H

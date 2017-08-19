@@ -45,7 +45,8 @@ int main(int argc, char **argv)
     parser(argc, argv, sequences);
 
 
-    /* Erstellen des Patternsets */
+    /* creating patternsets */
+
     rasbhari rasb_set = rasb_implement::hillclimb_oc(pattern_number, weight, dc, dc);
     patternset PatSet = rasb_set.pattern_set();
     vector<vector<char> > patterns;
@@ -56,8 +57,11 @@ int main(int argc, char **argv)
         patterns.push_back(tmp);
     }
     print_patterns(patterns);
-    /* ------------------------- */
+    /* -------------------- */
 
+    /* calculating spaced-words */
+    cout << " --------------\nCalculating spaced-words...\n";
+    double start_sw = omp_get_wtime();
     #pragma omp parallel for
     for (unsigned int i = 0; i < sequences.size(); ++i)
     {
@@ -75,9 +79,14 @@ int main(int argc, char **argv)
 
         }
     }
+    time_elapsed(start_sw);
+    /* ------------------------ */
+
+    /* calculating matches */
+    cout << " --------------\nCalculating matches...\n";
+    double start_matches = omp_get_wtime();
     int length = sequences.size();
     double distance[length][length];
-
     vector<int> result;
     vector<vector<int> > mismatches_dc;
     for (unsigned int i = 0; i < sequences.size(); ++i)
@@ -114,6 +123,8 @@ int main(int argc, char **argv)
             distance[j][i] = distance[i][j];
         }
     }
+    time_elapsed(start_matches);
+    /* ------------------------ */
 
     /* Output der Distanzmatrix */
     ofstream output_distance;
@@ -142,25 +153,8 @@ int main(int argc, char **argv)
     output_distance.close();
     /* ----------------------- */
 
-    double finished = omp_get_wtime();
-    double exec_time = finished - start;
-
-    int hours = exec_time / 3600;
-    int minutes = (exec_time - (3600 * hours) ) / 60;
-    int seconds = exec_time - (3600 * hours) - (60 * minutes);
-
-    if (hours != 0)
-    {
-        cout << "Time elapsed: " << hours << "h" << minutes << "m" << seconds << "s\n";
-    }
-    else if (minutes != 0)
-    {
-        cout << "Time elapsed: " << minutes << "m" << seconds << "s\n";
-    }
-    else
-    {
-        cout << "Time elapsed: " << exec_time << "s\n";
-    }
+    cout << " --------------\nTotal run-time:\n";
+    time_elapsed(start);
     //cin.get();
     return 0;
 }
