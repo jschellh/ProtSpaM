@@ -6,13 +6,13 @@ OBJDIR = ./obj/
 objects = $(addprefix $(OBJDIR), main.o Sequence.o Word.o misc.o calc_matches.o parser.o pattern.o patternset.o rasbcomp.o rasbhari.o rasbimp.o rasbopt.o sensmem.o speedsens.o)
 
 Debug: all
-all: afpd
+all: protfswm
 
-afpd: $(objects)
+protfswm: $(objects)
 	mkdir -p bin/Debug
-	$(CC) -Wall -o bin/Debug/afpd $(objects)
+	$(CC) -Wall -o bin/Debug/protfswm $(objects)
 	mkdir -p ~/bin
-	cp bin/Debug/afpd ~/bin/afpd
+	cp bin/Debug/protfswm ~/bin/protfswm
 
 $(OBJDIR)main.o: main.cpp
 	mkdir -p obj
@@ -58,7 +58,7 @@ $(OBJDIR)speedsens.o: src/speedsens.cpp
 	$(CC) $(CFLAGS) src/speedsens.cpp -o $@
 
 clean:
-	rm -rf $(OBJDIR)*.o bin/Debug/afpd	~/bin/afpd
+	rm -rf $(OBJDIR)*.o bin/Debug/protfswm	~/bin/protfswm
 
 
 
