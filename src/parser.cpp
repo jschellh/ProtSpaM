@@ -2,17 +2,12 @@
 
 using namespace std;
 
-vector<Sequence> parser (int argc, char **argv, vector<Sequence>& out)
+vector<Sequence> parser (string filename, vector<Sequence>& out)
 {
-    if (argc <= 1)
-    {
-        cerr << "Usage: " << argv[0] << " [infile]\n";
-    }
-
-    ifstream input(argv[1]);
+    ifstream input(filename);
     if (!input.good() )
     {
-        cerr << "Error opening '" << argv[1] << "'. Bailing out.\n";
+        cerr << "Error opening '" << filename << "'. Bailing out.\n";
     }
     Sequence tmp;
     string line;

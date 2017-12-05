@@ -1,8 +1,6 @@
 obj/
 bin/
-bitshift.depend
-bitshift.layout
-bitshift.cbp
-afpd.depend
-afpd.layout
-afpd.cbp
+protfswm.depend
+protfswm.layout
+protfswm.cbp
+.directory

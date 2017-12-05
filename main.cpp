@@ -12,42 +12,38 @@
 #include "rasbimp.hpp"
 #include "rasbhari.hpp"
 #include "patternset.hpp"
+#include "parameters.h"
 
 using namespace std;
 
 int main(int argc, char **argv)
 {
     double start = omp_get_wtime();
+    if(argc < 2)
+	{
+		printHelp();
+		exit (EXIT_FAILURE);
+	}
+    int weight = 8;
+    int dc = 40;
+    int threshold = 0;
+    int patternNumber = 1;
+    int threads = omp_get_max_threads();
+    parseParameters(argc, argv, weight, dc, threshold, patternNumber, threads);
+    string input_filename(argv[argc-1]);
+    string output_filename = delete_suffix(input_filename);
+    output_filename.append(".dm");
+    printParameters(weight, dc, threshold, patternNumber, threads);
+    omp_set_num_threads(threads);
 
-    int weight = atoi(argv[2]);
-    if (weight > 12)
-    {
-        cerr << "weight > 12 not supported; you entered a weight of: " << weight << endl;
-        return 1;
-    }
-
-    int dc = atoi(argv[3]);
-    int threshold = atoi(argv[4]);
-    int pattern_number;
-
-    if (argc == 5)
-    {
-        pattern_number = 1;
-    }
-    else if (argc == 6)
-    {
-        pattern_number = atoi(argv[5]);
-    }
-
-    string filename = delete_suffix(argv[1]);
-    filename.append(".dm");
     vector<Sequence> sequences;
-    parser(argc, argv, sequences);
+    parser(input_filename, sequences);
+
 
 
     /* creating patternsets */
 
-    rasbhari rasb_set = rasb_implement::hillclimb_oc(pattern_number, weight, dc, dc);
+    rasbhari rasb_set = rasb_implement::hillclimb_oc(patternNumber, weight, dc, dc);
     patternset PatSet = rasb_set.pattern_set();
     vector<vector<char> > patterns;
     for (unsigned int i = 0; i < PatSet.size(); ++i)
@@ -128,7 +124,7 @@ int main(int argc, char **argv)
 
     /* Output der Distanzmatrix */
     ofstream output_distance;
-    output_distance.open(filename);
+    output_distance.open(output_filename);
     output_distance << '\t' << sequences.size() << endl;
     for (unsigned int i = 0; i < sequences.size(); ++i)
     {

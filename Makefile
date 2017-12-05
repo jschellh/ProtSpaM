@@ -3,16 +3,16 @@ IDIR = ./include
 CFLAGS = -c -Wall -std=c++11 -I $(IDIR)
 OBJDIR = ./obj/
 
-objects = $(addprefix $(OBJDIR), main.o Sequence.o Word.o misc.o calc_matches.o parser.o pattern.o patternset.o rasbcomp.o rasbhari.o rasbimp.o rasbopt.o sensmem.o speedsens.o)
+objects = $(addprefix $(OBJDIR), main.o Sequence.o Word.o misc.o calc_matches.o parser.o pattern.o patternset.o rasbcomp.o rasbhari.o rasbimp.o rasbopt.o sensmem.o speedsens.o parameters.o)
 
 Debug: all
-all: afpd
+all: protfswm
 
-afpd: $(objects)
+protfswm: $(objects)
 	mkdir -p bin/Debug
-	$(CC) -Wall -o bin/Debug/afpd $(objects)
+	$(CC) -Wall -o bin/Debug/protfswm $(objects)
 	mkdir -p ~/bin
-	cp bin/Debug/afpd ~/bin/afpd
+	cp bin/Debug/protfswm ~/bin/protfswm
 
 $(OBJDIR)main.o: main.cpp
 	mkdir -p obj
@@ -32,16 +32,16 @@ $(OBJDIR)calc_matches.o: src/calc_matches.cpp
 
 $(OBJDIR)parser.o: src/parser.cpp
 	$(CC) $(CFLAGS) src/parser.cpp -o $@
-	
+
 $(OBJDIR)pattern.o: src/pattern.cpp
 	$(CC) $(CFLAGS) src/pattern.cpp -o $@
-	
+
 $(OBJDIR)patternset.o: src/patternset.cpp
 	$(CC) $(CFLAGS) src/patternset.cpp -o $@
 
 $(OBJDIR)rasbcomp.o: src/rasbcomp.cpp
 	$(CC) $(CFLAGS) src/rasbcomp.cpp -o $@
-	
+
 $(OBJDIR)rasbhari.o: src/rasbhari.cpp
 	$(CC) $(CFLAGS) src/rasbhari.cpp -o $@
 
@@ -50,15 +50,18 @@ $(OBJDIR)rasbimp.o: src/rasbimp.cpp
 
 $(OBJDIR)rasbopt.o: src/rasbopt.cpp
 	$(CC) $(CFLAGS) src/rasbopt.cpp -o $@
-	
+
 $(OBJDIR)sensmem.o: src/sensmem.cpp
 	$(CC) $(CFLAGS) src/sensmem.cpp -o $@
-	
+
 $(OBJDIR)speedsens.o: src/speedsens.cpp
 	$(CC) $(CFLAGS) src/speedsens.cpp -o $@
 
+$(OBJDIR)parameters.o: src/parameters.cpp
+	$(CC) $(CFLAGS) src/parameters.cpp -o $@
+
 clean:
-	rm -rf $(OBJDIR)*.o bin/Debug/afpd	~/bin/afpd
+	rm -rf $(OBJDIR)*.o bin/Debug/protfswm	~/bin/protfswm
 
 
 
