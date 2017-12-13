@@ -75,7 +75,7 @@ void spacedWords (Sequence& sequence, vector<char> const& pattern, vector<Word>&
 /* Calculates the distance using Kimura Formula */
 double calc_distance (double mmr)
 {
-    double distance = -log(1 - mmr - pow( (0.2 * mmr),2.0) );
+    double distance = -log(1 - mmr - (0.2 * pow(mmr,2.0) ) );
     return distance;
 }
 
@@ -100,7 +100,7 @@ string delete_suffix (string file)
 vector<vector<char> > rand_pattern(int w, int d, int pat_number)
 {
     vector<vector<char> > pattern;
-    for (unsigned int i = 0; i < pat_number; ++i)
+    for (int i = 0; i < pat_number; ++i)
     {
         int lg = w + d;
         int carepos = 2;                                //zwei care-positionen stehen zu beginn fest
