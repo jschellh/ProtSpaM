@@ -17,7 +17,7 @@ void print_patterns (vector<vector<char> > patterns)
         {
             break;
         }
-        cout << " | ";
+        cout << endl;
     }
     cout << endl;
 }
@@ -33,7 +33,7 @@ void print_pattern (vector<char> pattern)
 
 
 /* Returns a string of a given long word*/
-vector<string> translate = {"A","R","N","D","C","Q","E","G","H","I","L","K","M","F","P","S","T","W","Y","V","B","Z","X","*"};
+vector<string> translate = {"A","R","N","D","C","Q","E","G","H","I","L","K","M","F","P","S","T","W","Y","V","B","Z","X","*","J"};
 string read_word (unsigned long long spaced_word, unsigned int weight)
 {
     string out;
@@ -47,8 +47,30 @@ string read_word (unsigned long long spaced_word, unsigned int weight)
     return out;
 }
 
+/* Returns true if the spaced-word is a real context (i.e. not containing 'J') */
+bool isContext (unsigned long long spaced_word, unsigned int weight)
+{
+    string out;
+    int i = 0;
+    while (out.size() < weight)
+    {
+        int letter = spaced_word & ((1 << 5) - 1);
+        spaced_word >>= 5;
+        if (translate[letter] == "J")
+        {
+//            cout << "Letter \"" << translate[letter] << "\" found!\n" ;
+            return false;
+        }
+        else
+        {
+            out.insert(i,translate[letter]);
+        }
+    }
+    return true;
+}
+
 /* Calculates every "Spaced Word" for a sequence and a given pattern*/
-void spacedWords (Sequence& sequence, vector<char> const& pattern, vector<Word>& out, int weight)
+void spacedWords (Sequence& sequence, vector<char> const& pattern, vector<Word>& out, int weight, int& wcc)
 {
     for (unsigned int i = 0; i < (sequence.seq.size() - pattern.size() + 1); ++i)
     {
@@ -63,11 +85,17 @@ void spacedWords (Sequence& sequence, vector<char> const& pattern, vector<Word>&
             }
             ++i;
         }
-//        cout << read_word(spacedWord, weight) << endl;
-        i = i - pattern.size();
-        tmp.set_key(spacedWord);
-        tmp.set_pos(i);
-        out.push_back(tmp);
+        if (isContext(spacedWord, weight) )
+        {
+            i = i - pattern.size();
+            tmp.set_key(spacedWord);
+            tmp.set_pos(i);
+            out.push_back(tmp);
+        }
+        else
+        {
+            ++wcc;
+        }
     }
     sequence.set_words(out);
 }

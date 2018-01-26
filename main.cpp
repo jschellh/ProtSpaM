@@ -58,14 +58,15 @@ int main(int argc, char **argv)
     /* calculating spaced-words */
     cout << " --------------\nCalculating spaced-words...\n";
     double start_sw = omp_get_wtime();
-    #pragma omp parallel for
+    int wrong_context_care = 0;
+//    #pragma omp parallel for
     for (unsigned int i = 0; i < sequences.size(); ++i)
     {
 //        cout << "Spezies " << sequences[i].header << ":\n";
         for (unsigned int pat = 0; pat < patterns.size(); ++pat)
         {
             vector<Word> sw;
-            spacedWords(sequences[i], patterns[pat], sw, weight);
+            spacedWords(sequences[i], patterns[pat], sw, weight, wrong_context_care);
     //        for (unsigned int i = 0; i < sw.size(); ++i)
     //        {
     //            cout << sw[i].key << " | " << sw[i].pos;
@@ -81,10 +82,12 @@ int main(int argc, char **argv)
     /* calculating matches */
     cout << " --------------\nCalculating matches...\n";
     double start_matches = omp_get_wtime();
+    int wrong_context_dontcare = 0;
     int length = sequences.size();
     double distance[length][length];
     vector<int> result;
     vector<vector<int> > mismatches_dc;
+//    int total_dc;
     for (unsigned int i = 0; i < sequences.size(); ++i)
     {
 //		cout << "checking " << i << ". sequence with \n";
@@ -100,7 +103,7 @@ int main(int argc, char **argv)
 //                cout << "Pattern: ";
 //                print_pattern(patterns[pat]);
 //                cout << endl;
-                result = calc_matches(sequences[i].sorted_words[pat], sequences[j].sorted_words[pat], sequences[i].seq, sequences[j].seq, weight, dc, threshold, patterns[pat]);
+                result = calc_matches(sequences[i].sorted_words[pat], sequences[j].sorted_words[pat], sequences[i].seq, sequences[j].seq, weight, dc, threshold, patterns[pat], wrong_context_dontcare);
                 mismatches_dc.push_back(result);
             }
             int mismatch_sum = 0;
@@ -114,6 +117,7 @@ int main(int argc, char **argv)
 //                cout << "mismatch_sum = " << mismatch_sum << " | dc_sum = " << dc_sum << endl;
             }
             double mismatch_rate = (double) mismatch_sum / dc_sum;
+//            total_dc += dc_sum;
 //            cout << "mismatch_rate = " << mismatch_rate << endl;
             distance[i][j] = calc_distance(mismatch_rate);
             distance[j][i] = distance[i][j];
@@ -151,6 +155,11 @@ int main(int argc, char **argv)
 
     cout << " --------------\nTotal run-time:\n";
     time_elapsed(start);
+    cout << "---------------\nWrong Contexts (care positions) : " << wrong_context_care << endl;
+    cout << "Wrong Contexts (dont-care positions) : " << wrong_context_dontcare << endl;
+    cout << "Wrong contexts (total) : " << wrong_context_care + wrong_context_dontcare << endl;
+//    cout << "---------------\nTotal analysed spaced-words: " << total_dc / dc << endl;
+
     //cin.get();
     return 0;
 }

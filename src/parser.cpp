@@ -75,6 +75,7 @@ vector<Sequence> parser (string filename, vector<Sequence>& out)
                     case 'Z': tmp.set_seq(21); break;
                     case 'X': tmp.set_seq(22); break;
                     case '*': tmp.set_seq(23); break;
+                    case 'J': tmp.set_seq(24); break;
                 }
             }
         }

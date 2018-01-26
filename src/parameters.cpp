@@ -79,5 +79,5 @@ void printParameters(int& weight, int& dc, int& threshold, int& patterns, int& t
     cout << "Threshold: " << threshold << endl;
     cout << "Number of patterns: " << patterns << endl;
     cout << "Number of threads: " << threads << endl;
-    cout << "--------------------------\n\n";
+    cout << "--------------------------\n";
 }
