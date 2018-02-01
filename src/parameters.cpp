@@ -19,7 +19,7 @@ void printHelp(){
     "\nOptions:"
     "\n\t -h/-?: print this help and exit"
     "\n\t -k <integer>: pattern weight (default 8)"
-    "\n\t -d <integer>: number of don't-care positions (default 40)"
+    "\n\t -d <integer>: number of don't-care positions (default 50)"
     "\n\t -s <integer>: the minimum score of a spaced-word match to be considered homologous (default: 0)"
     "\n\t -p <integer>: number of patterns used (default 1)"
     "\n\t -t <integer>: number of threads (default: omp_get_max_threads() )"

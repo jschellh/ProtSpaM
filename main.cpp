@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 		exit (EXIT_FAILURE);
 	}
     int weight = 8;
-    int dc = 40;
+    int dc = 50;
     int threshold = 0;
     int patternNumber = 1;
     int threads = omp_get_max_threads();
