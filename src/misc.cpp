@@ -70,7 +70,7 @@ bool isContext (unsigned long long spaced_word, unsigned int weight)
 }
 
 /* Calculates every "Spaced Word" for a sequence and a given pattern*/
-void spacedWords (Sequence& sequence, vector<char> const& pattern, vector<Word>& out, int weight, int& wcc)
+void spacedWords (Sequence& sequence, vector<char> const& pattern, vector<Word>& out)
 {
     for (unsigned int i = 0; i < (sequence.seq.size() - pattern.size() + 1); ++i)
     {
@@ -85,19 +85,48 @@ void spacedWords (Sequence& sequence, vector<char> const& pattern, vector<Word>&
             }
             ++i;
         }
-        if (isContext(spacedWord, weight) )
+        i = i - pattern.size();
+        tmp.set_key(spacedWord);
+        tmp.set_pos(i);
+        out.push_back(tmp);
+    }
+    sequence.set_words(out);
+}
+
+void spacedWords(Sequence& sequence, vector<char> const& pattern, vector<int> starts)
+{
+    vector<Word> words;
+    for (unsigned int i = 0; i < starts.size(); ++i)
+    {
+        int stop;
+        if (i < starts.size() - 1)
         {
-            i = i - pattern.size();
-            tmp.set_key(spacedWord);
-            tmp.set_pos(i);
-            out.push_back(tmp);
+            stop = starts[i+1];
         }
         else
         {
-            ++wcc;
+            stop = sequence.seq.size();
+        }
+        for (unsigned int j = starts[i]; j <= (stop - pattern.size() ); ++j)
+        {
+            Word tmp;
+            unsigned long long spacedWord = 0;
+            for (unsigned int k = 0; k < pattern.size(); ++k)
+            {
+                if (pattern[k] == '1')
+                {
+                    spacedWord <<= 5;
+                    spacedWord |= sequence.seq[j];
+                }
+                ++j;
+            }
+            j = j - pattern.size();
+            tmp.set_key(spacedWord);
+            tmp.set_pos(j);
+            words.push_back(tmp);
         }
     }
-    sequence.set_words(out);
+    sequence.set_words(words);
 }
 
 /* Calculates the distance using Kimura Formula */
@@ -115,6 +144,22 @@ string delete_suffix (string file)
     if (found != string::npos)
     {
         out = file.substr(0, found);
+//        cout << out << endl;
+        return out;
+    }
+    else
+    {
+        return file;
+    }
+}
+
+string delete_prefix (string file)
+{
+    string out;
+    unsigned int found = file.find("/");
+    if (found != string::npos)
+    {
+        out = file.substr(found + 1, file.length() );
 //        cout << out << endl;
         return out;
     }

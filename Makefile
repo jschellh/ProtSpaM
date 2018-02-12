@@ -1,18 +1,18 @@
 CC = g++ -fopenmp
 IDIR = ./include
-CFLAGS = -c -Wall -std=c++11 -I $(IDIR)
+CFLAGS = -c -Wall -std=c++17 -I $(IDIR)
 OBJDIR = ./obj/
 
-objects = $(addprefix $(OBJDIR), main.o Sequence.o Word.o misc.o calc_matches.o parser.o pattern.o patternset.o rasbcomp.o rasbhari.o rasbimp.o rasbopt.o sensmem.o speedsens.o parameters.o)
+objects = $(addprefix $(OBJDIR), main.o Sequence.o Word.o misc.o calc_matches.o parser.o pattern.o patternset.o rasbcomp.o rasbhari.o rasbimp.o rasbopt.o sensmem.o speedsens.o parameters.o sw_parser.o)
 
 Debug: all
 all: protfswm
 
 protfswm: $(objects)
 	mkdir -p bin/Debug
-	$(CC) -Wall -o bin/Debug/protfswm $(objects)
+	$(CC) -Wall -o bin/Debug/protfswm_swpars $(objects)
 	mkdir -p ~/bin
-	cp bin/Debug/protfswm ~/bin/protfswm
+	cp bin/Debug/protfswm_swpars ~/bin/protfswm_swpars
 
 $(OBJDIR)main.o: main.cpp
 	mkdir -p obj
@@ -60,8 +60,11 @@ $(OBJDIR)speedsens.o: src/speedsens.cpp
 $(OBJDIR)parameters.o: src/parameters.cpp
 	$(CC) $(CFLAGS) src/parameters.cpp -o $@
 
+$(OBJDIR)sw_parser.o: src/sw_parser.cpp
+	$(CC) $(CFLAGS) src/sw_parser.cpp -o $@
+
 clean:
-	rm -rf $(OBJDIR)*.o bin/Debug/protfswm	~/bin/protfswm
+	rm -rf $(OBJDIR)*.o bin/Debug/protfswm_swpars	~/bin/protfswm_swpars
 
 
 

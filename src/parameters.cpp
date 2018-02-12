@@ -1,4 +1,5 @@
 #include "parameters.h"
+#include <vector>
 
 using namespace std;
 
@@ -19,17 +20,18 @@ void printHelp(){
     "\nOptions:"
     "\n\t -h/-?: print this help and exit"
     "\n\t -k <integer>: pattern weight (default 8)"
-    "\n\t -d <integer>: number of don't-care positions (default 50)"
+    "\n\t -d <integer>: number of don't-care positions (default 40)"
     "\n\t -s <integer>: the minimum score of a spaced-word match to be considered homologous (default: 0)"
     "\n\t -p <integer>: number of patterns used (default 1)"
     "\n\t -t <integer>: number of threads (default: omp_get_max_threads() )"
+    "\n\t -l <filename>: specify a list of files to read as input (one inputfile per organism containing each sequence, seperated by headers) "
     "\n";
 	cout << help << endl;
 }
 
-void parseParameters(int argc, char *argv[], int& weight, int& dc, int& threshold, int& patterns, int& threads){
+void parseParameters(int argc, char *argv[], int& weight, int& dc, int& threshold, int& patterns, int& threads, vector<string>& inputFilenames){
 	int option_char;
-	 while ((option_char = getopt (argc, argv, "k:d:s:p:t:h")) != -1){
+	 while ((option_char = getopt (argc, argv, "k:d:s:p:t:l:h")) != -1){
 		switch (option_char){
 			case 'k':
 				weight = atoi (optarg);
@@ -61,6 +63,21 @@ void parseParameters(int argc, char *argv[], int& weight, int& dc, int& threshol
 					exit (EXIT_FAILURE);
 				}
 				break;
+            case 'l':
+                {
+                    std::ifstream infile(optarg);
+                    if (!infile.good() )
+                    {
+                        cerr << "Error opening inputfiles-list: '" << optarg << "'. Bailing out.\n";
+                    }
+                    std::string line;
+                    while (!infile.eof())
+                    {
+                        std::getline(infile, line, '\n');
+                        inputFilenames.push_back(line);
+                    }
+                    break;
+                }
 			case 'h':
 				printHelp();
 				exit (EXIT_SUCCESS);

@@ -10,6 +10,7 @@ vector<Sequence> parser (string filename, vector<Sequence>& out)
         cerr << "Error opening '" << filename << "'. Bailing out.\n";
     }
     Sequence tmp;
+
     string line;
     while (getline(input,line).good() )
     {
@@ -46,7 +47,6 @@ vector<Sequence> parser (string filename, vector<Sequence>& out)
         }
         else if (!tmp.header.empty() )
         {
-
             for (unsigned int i = 0; i < line.size(); ++i)
             {
                 switch (line[i])

@@ -13,6 +13,7 @@
 #include "rasbhari.hpp"
 #include "patternset.hpp"
 #include "parameters.h"
+#include "sw_parser.h"
 
 using namespace std;
 
@@ -25,24 +26,19 @@ int main(int argc, char **argv)
 		exit (EXIT_FAILURE);
 	}
     int weight = 8;
-    int dc = 50;
+    int dc = 40;
     int threshold = 0;
     int patternNumber = 1;
     int threads = omp_get_max_threads();
-    parseParameters(argc, argv, weight, dc, threshold, patternNumber, threads);
+    vector<string> inFiles;
+    parseParameters(argc, argv, weight, dc, threshold, patternNumber, threads, inFiles);
     string input_filename(argv[argc-1]);
     string output_filename = delete_suffix(input_filename);
     output_filename.append(".dm");
     printParameters(weight, dc, threshold, patternNumber, threads);
     omp_set_num_threads(threads);
 
-    vector<Sequence> sequences;
-    parser(input_filename, sequences);
-
-
-
     /* creating patternsets */
-
     rasbhari rasb_set = rasb_implement::hillclimb_oc(patternNumber, weight, dc, dc);
     patternset PatSet = rasb_set.pattern_set();
     vector<vector<char> > patterns;
@@ -55,27 +51,46 @@ int main(int argc, char **argv)
     print_patterns(patterns);
     /* -------------------- */
 
+    /* Parsing and calculating spacedWords */
+    vector<Sequence> sequences;
+    if (inFiles.empty() && !input_filename.empty() )
+    {
+        cout << "Detected Multifasta!\n";
+        parser(input_filename, sequences);
+    }
+    else if (!inFiles.empty() )
+    {
+        cout << "Detected input folder!\n";
+        sw_parser(inFiles, sequences, patterns);
+    }
+    /* ----------------------------------- */
+
     /* calculating spaced-words */
     cout << " --------------\nCalculating spaced-words...\n";
     double start_sw = omp_get_wtime();
-    int wrong_context_care = 0;
 //    #pragma omp parallel for
-    for (unsigned int i = 0; i < sequences.size(); ++i)
+    if (inFiles.empty() && !input_filename.empty() )
     {
-//        cout << "Spezies " << sequences[i].header << ":\n";
-        for (unsigned int pat = 0; pat < patterns.size(); ++pat)
+        for (unsigned int i = 0; i < sequences.size(); ++i)
         {
-            vector<Word> sw;
-            spacedWords(sequences[i], patterns[pat], sw, weight, wrong_context_care);
-    //        for (unsigned int i = 0; i < sw.size(); ++i)
-    //        {
-    //            cout << sw[i].key << " | " << sw[i].pos;
-    //            cout << " | " << read_word(sw[i].key, weight) << endl;
-    //        }
-    //        cout << endl;
-
+            for (unsigned int pat = 0; pat < patterns.size(); ++pat)
+            {
+                vector<Word> sw;
+                spacedWords(sequences[i], patterns[pat], sw);
+            }
         }
     }
+    else if (!inFiles.empty() )
+    {
+        for (unsigned int i = 0; i < sequences.size(); ++i)
+        {
+            for (unsigned int pat = 0; pat < patterns.size(); ++pat)
+            {
+                spacedWords(sequences[i], patterns[pat], sequences[i].starts);
+            }
+        }
+    }
+
     time_elapsed(start_sw);
     /* ------------------------ */
 
@@ -92,7 +107,7 @@ int main(int argc, char **argv)
     {
 //		cout << "checking " << i << ". sequence with \n";
         distance[i][i] = 0;
-	#pragma omp parallel for private (result, mismatches_dc)
+//	#pragma omp parallel for private (result, mismatches_dc)
         for (unsigned int j = sequences.size() - 1; j > i; --j)
         {
 //			cout << j << ". sequence (" << omp_get_thread_num() << ")" << endl;
@@ -155,11 +170,5 @@ int main(int argc, char **argv)
 
     cout << " --------------\nTotal run-time:\n";
     time_elapsed(start);
-    cout << "---------------\nWrong Contexts (care positions) : " << wrong_context_care << endl;
-    cout << "Wrong Contexts (dont-care positions) : " << wrong_context_dontcare << endl;
-    cout << "Wrong contexts (total) : " << wrong_context_care + wrong_context_dontcare << endl;
-//    cout << "---------------\nTotal analysed spaced-words: " << total_dc / dc << endl;
-
-    //cin.get();
     return 0;
 }

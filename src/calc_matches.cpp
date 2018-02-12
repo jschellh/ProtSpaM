@@ -59,6 +59,7 @@ int multimatch (vector<Word>& sortedWords, int start)
 
 vector<int> calc_matches (vector<Word>& sw1, vector<Word>& sw2, vector<char>& seq1, vector<char>& seq2, int& weight, int& dc, int& threshold, vector<char> pattern, int& wcd)
 {
+//    cout << "Entering calc_matches()\n";
     int skip = 0;
     int total_mismatches = 0;
     int total_dc = 0;
@@ -345,5 +346,6 @@ vector<int> calc_matches (vector<Word>& sw1, vector<Word>& sw2, vector<char>& se
     vector<int> result;
     result.push_back(total_mismatches);
     result.push_back(total_dc);
+//    cout << "done!\n";
     return result;
 }

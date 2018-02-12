@@ -13,11 +13,14 @@ class Sequence
         std::vector<std::vector<Word> > sorted_words;
         std::vector<int> mismatches;
         std::vector<int> dc_pos;
+        std::vector<int> starts;
         void set_header (std::string);
         void clear_header ();
         void set_seq (char);
+        void set_seqvec(std::vector<char>);
         void clear_seq ();
         void set_words (std::vector<Word>);
+        void set_starts(std::vector<int>);
     protected:
 
     private:
