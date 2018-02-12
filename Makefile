@@ -10,9 +10,9 @@ all: protfswm
 
 protfswm: $(objects)
 	mkdir -p bin/Debug
-	$(CC) -Wall -o bin/Debug/protfswm_swpars $(objects)
+	$(CC) -Wall -o bin/Debug/protfswm $(objects)
 	mkdir -p ~/bin
-	cp bin/Debug/protfswm_swpars ~/bin/protfswm_swpars
+	cp bin/Debug/protfswm ~/bin/protfswm
 
 $(OBJDIR)main.o: main.cpp
 	mkdir -p obj
@@ -64,7 +64,7 @@ $(OBJDIR)sw_parser.o: src/sw_parser.cpp
 	$(CC) $(CFLAGS) src/sw_parser.cpp -o $@
 
 clean:
-	rm -rf $(OBJDIR)*.o bin/Debug/protfswm_swpars	~/bin/protfswm_swpars
+	rm -rf $(OBJDIR)*.o bin/Debug/protfswm	~/bin/protfswm
 
 
 

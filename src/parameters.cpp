@@ -24,14 +24,15 @@ void printHelp(){
     "\n\t -s <integer>: the minimum score of a spaced-word match to be considered homologous (default: 0)"
     "\n\t -p <integer>: number of patterns used (default 1)"
     "\n\t -t <integer>: number of threads (default: omp_get_max_threads() )"
+    "\n\t -o <integer>: filename for distance matrix (default: DMat)"
     "\n\t -l <filename>: specify a list of files to read as input (one inputfile per organism containing each sequence, seperated by headers) "
     "\n";
 	cout << help << endl;
 }
 
-void parseParameters(int argc, char *argv[], int& weight, int& dc, int& threshold, int& patterns, int& threads, vector<string>& inputFilenames){
+void parseParameters(int argc, char *argv[], int& weight, int& dc, int& threshold, int& patterns, int& threads, vector<string>& inputFilenames, string& output){
 	int option_char;
-	 while ((option_char = getopt (argc, argv, "k:d:s:p:t:l:h")) != -1){
+	 while ((option_char = getopt (argc, argv, "k:d:s:p:t:l:o:h")) != -1){
 		switch (option_char){
 			case 'k':
 				weight = atoi (optarg);
@@ -78,6 +79,9 @@ void parseParameters(int argc, char *argv[], int& weight, int& dc, int& threshol
                     }
                     break;
                 }
+            case 'o':
+                output = optarg;
+                break;
 			case 'h':
 				printHelp();
 				exit (EXIT_SUCCESS);
@@ -89,12 +93,13 @@ void parseParameters(int argc, char *argv[], int& weight, int& dc, int& threshol
 	}
 }
 
-void printParameters(int& weight, int& dc, int& threshold, int& patterns, int& threads) {
+void printParameters(int& weight, int& dc, int& threshold, int& patterns, int& threads, string& output) {
     cout << "-----Parameters used------\n";
     cout << "Weight: " << weight << endl;
     cout << "Number of don't-care positions: " << dc << endl;
     cout << "Threshold: " << threshold << endl;
     cout << "Number of patterns: " << patterns << endl;
     cout << "Number of threads: " << threads << endl;
+    cout << "Filename for distance matrix: " << output << endl;
     cout << "--------------------------\n";
 }

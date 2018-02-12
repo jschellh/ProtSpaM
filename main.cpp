@@ -31,11 +31,10 @@ int main(int argc, char **argv)
     int patternNumber = 1;
     int threads = omp_get_max_threads();
     vector<string> inFiles;
-    parseParameters(argc, argv, weight, dc, threshold, patternNumber, threads, inFiles);
+    string output_filename = "DMat";
+    parseParameters(argc, argv, weight, dc, threshold, patternNumber, threads, inFiles, output_filename);
     string input_filename(argv[argc-1]);
-    string output_filename = delete_suffix(input_filename);
-    output_filename.append(".dm");
-    printParameters(weight, dc, threshold, patternNumber, threads);
+    printParameters(weight, dc, threshold, patternNumber, threads, output_filename);
     omp_set_num_threads(threads);
 
     /* creating patternsets */

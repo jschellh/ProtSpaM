@@ -6,8 +6,8 @@
 #include <vector>
 #include <fstream>
 
-    void parseParameters(int argc, char *argv[], int& weight, int& dc, int& threshold, int& patterns, int& threads, std::vector<std::string>& inputFilenames);
+    void parseParameters(int argc, char *argv[], int& weight, int& dc, int& threshold, int& patterns, int& threads, std::vector<std::string>& inputFilenames, std::string& output);
     void printHelp();
-    void printParameters(int& weight, int& dc, int& threshold, int& patterns, int& threads);
+    void printParameters(int&, int&, int&, int&, int&, std::string&);
 
 #endif // PARAMETERS_H
