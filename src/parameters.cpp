@@ -19,7 +19,7 @@ void printHelp(){
     "\n\t "
     "\nOptions:"
     "\n\t -h/-?: print this help and exit"
-    "\n\t -k <integer>: pattern weight (default 8)"
+    "\n\t -w <integer>: pattern weight (default 8)"
     "\n\t -d <integer>: number of don't-care positions (default 40)"
     "\n\t -s <integer>: the minimum score of a spaced-word match to be considered homologous (default: 0)"
     "\n\t -p <integer>: number of patterns used (default 1)"
@@ -32,12 +32,12 @@ void printHelp(){
 
 void parseParameters(int argc, char *argv[], int& weight, int& dc, int& threshold, int& patterns, int& threads, vector<string>& inputFilenames, string& output){
 	int option_char;
-	 while ((option_char = getopt (argc, argv, "k:d:s:p:t:l:o:h")) != -1){
+	 while ((option_char = getopt (argc, argv, "w:d:s:p:t:l:o:h")) != -1){
 		switch (option_char){
-			case 'k':
+			case 'w':
 				weight = atoi (optarg);
 				if(weight<4 || weight > 12){
-					std::cerr << "Weight '-k' must be between 4 and 12"<< std::endl;
+					std::cerr << "Weight '-w' must be between 4 and 12"<< std::endl;
 					exit (EXIT_FAILURE);
 				}
 				break;
