@@ -1,6 +1,6 @@
 CC = g++ -fopenmp
 IDIR = ./include
-CFLAGS = -c -Wall -std=c++17 -I $(IDIR)
+CFLAGS = -c -Wall -std=c++11 -I $(IDIR)
 OBJDIR = ./obj/
 
 objects = $(addprefix $(OBJDIR), main.o Sequence.o Word.o misc.o calc_matches.o parser.o pattern.o patternset.o rasbcomp.o rasbhari.o rasbimp.o rasbopt.o sensmem.o speedsens.o parameters.o sw_parser.o)

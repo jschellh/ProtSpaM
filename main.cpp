@@ -67,9 +67,9 @@ int main(int argc, char **argv)
     /* calculating spaced-words */
     cout << " --------------\nCalculating spaced-words...\n";
     double start_sw = omp_get_wtime();
-//    #pragma omp parallel for
     if (inFiles.empty() && !input_filename.empty() )
     {
+        #pragma omp parallel for
         for (unsigned int i = 0; i < sequences.size(); ++i)
         {
             for (unsigned int pat = 0; pat < patterns.size(); ++pat)
@@ -81,6 +81,7 @@ int main(int argc, char **argv)
     }
     else if (!inFiles.empty() )
     {
+        #pragma omp parallel for
         for (unsigned int i = 0; i < sequences.size(); ++i)
         {
             for (unsigned int pat = 0; pat < patterns.size(); ++pat)
@@ -106,7 +107,7 @@ int main(int argc, char **argv)
     {
 //		cout << "checking " << i << ". sequence with \n";
         distance[i][i] = 0;
-//	#pragma omp parallel for private (result, mismatches_dc)
+	#pragma omp parallel for private (result, mismatches_dc)
         for (unsigned int j = sequences.size() - 1; j > i; --j)
         {
 //			cout << j << ". sequence (" << omp_get_thread_num() << ")" << endl;
