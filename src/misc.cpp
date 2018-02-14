@@ -93,21 +93,21 @@ void spacedWords (Sequence& sequence, vector<char> const& pattern, vector<Word>&
     sequence.set_words(out);
 }
 
-void spacedWords(Sequence& sequence, vector<char> const& pattern, vector<int> starts)
+void spacedWords(Sequence& sequence, vector<char> const& pattern)
 {
     vector<Word> words;
-    for (unsigned int i = 0; i < starts.size(); ++i)
+    for (unsigned int i = 0; i < sequence.starts.size(); ++i)
     {
         int stop;
-        if (i < starts.size() - 1)
+        if (i < sequence.starts.size() - 1)
         {
-            stop = starts[i+1];
+            stop = sequence.starts[i+1];
         }
         else
         {
             stop = sequence.seq.size();
         }
-        for (unsigned int j = starts[i]; j <= (stop - pattern.size() ); ++j)
+        for (unsigned int j = sequence.starts[i]; j <= (stop - pattern.size() ); ++j)
         {
             Word tmp;
             unsigned long long spacedWord = 0;

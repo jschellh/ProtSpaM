@@ -86,7 +86,7 @@ int main(int argc, char **argv)
         {
             for (unsigned int pat = 0; pat < patterns.size(); ++pat)
             {
-                spacedWords(sequences[i], patterns[pat], sequences[i].starts);
+                spacedWords(sequences[i], patterns[pat]);
             }
         }
     }

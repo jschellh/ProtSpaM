@@ -5,12 +5,6 @@ using namespace std;
 vector<string> translate_here = {"A","R","N","D","C","Q","E","G","H","I","L","K","M","F","P","S","T","W","Y","V","B","Z","X","*","J"};
 vector<Sequence> sw_parser(vector<string>& fileNames, vector<Sequence>& out, vector<vector<char>> const& patterns)
 {
-//    cout << "-------Filenames--------" << endl;
-//    for (unsigned int i = 0; i < fileNames.size() - 1; ++i)
-//    {
-//        cout << fileNames[i] << endl;
-//    }
-//    cout << "------------------------" << endl;
     for (unsigned int i = 0; i < fileNames.size() -1; ++i)
     {
       	ifstream infile(fileNames[i]);
@@ -18,11 +12,9 @@ vector<Sequence> sw_parser(vector<string>& fileNames, vector<Sequence>& out, vec
         {
             cerr << "Error opening '" << fileNames[i] << "'. Bailing out.\n";
         }
-//        cout << "\n-------\nParsing " << fileNames[i] << endl;
         string header = delete_suffix(delete_prefix(fileNames[i]));
         string line;
         vector<int> starts;
-        int number = 1;
         Sequence tmpSequence;
         if (header.size() > 10)
         {
@@ -44,9 +36,6 @@ vector<Sequence> sw_parser(vector<string>& fileNames, vector<Sequence>& out, vec
             vector<char> tmp;
             getline(infile, header);
             getline(infile, line, '>');
-//            cout << "...sequence number: " << number << endl;
-            ++number;
-//            cout << line << endl;
             for (unsigned int j = 0; j < line.size(); ++j)
             {
                 switch (line[j])
@@ -78,19 +67,13 @@ vector<Sequence> sw_parser(vector<string>& fileNames, vector<Sequence>& out, vec
                 }
             }
             starts.push_back(tmpSequence.seq.size() );
-//            cout << "Concatenating to Sequence\ntmp.size()=" << tmp.size() << endl;
             for (unsigned int j = 0; j < tmp.size(); ++j)
             {
                 tmpSequence.set_seq(tmp[j]);
             }
         }
-//        cout << "Setting starts...\n";
         tmpSequence.set_starts(starts);
-//        cout << "Success!\n";
-//        cout << "------------\n";
-//        cout << "Pushing back...\n";
         out.push_back(tmpSequence);
-//        cout << "Success!\n";
     }
     return out;
 }

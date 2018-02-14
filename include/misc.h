@@ -14,7 +14,7 @@
         std::string read_word (unsigned long long spaced_word, unsigned int weight);
         bool isContext(unsigned long long spaced_word, unsigned int weight);
         void spacedWords (Sequence& sequence, std::vector<char> const& pattern, std::vector<Word>& out);
-        void spacedWords(Sequence&, std::vector<char> const&, std::vector<int>);
+        void spacedWords(Sequence&, std::vector<char> const&);
         double calc_distance (double mmr);
         std::string delete_suffix (std::string);
         std::string delete_prefix (std::string);
