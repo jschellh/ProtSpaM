@@ -156,10 +156,10 @@ string delete_suffix (string file)
 string delete_prefix (string file)
 {
     string out;
-    unsigned int found = file.find("/");
+    unsigned int found = file.find_last_of("/");
     if (found != string::npos)
     {
-        out = file.substr(found + 1, file.length() );
+        out = file.substr(found + 1);
 //        cout << out << endl;
         return out;
     }
