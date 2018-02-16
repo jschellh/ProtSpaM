@@ -57,9 +57,8 @@ int multimatch (vector<Word>& sortedWords, int start)
     return multimatch_length;
 }
 
-vector<int> calc_matches (vector<Word>& sw1, vector<Word>& sw2, vector<char>& seq1, vector<char>& seq2, int& weight, int& dc, int& threshold, vector<char> pattern, int& wcd)
+vector<int> calc_matches (vector<Word>& sw1, vector<Word>& sw2, vector<char>& seq1, vector<char>& seq2, int& weight, int& dc, int& threshold, vector<char> pattern)
 {
-//    cout << "Entering calc_matches()\n";
     int skip = 0;
     int total_mismatches = 0;
     int total_dc = 0;
@@ -67,10 +66,8 @@ vector<int> calc_matches (vector<Word>& sw1, vector<Word>& sw2, vector<char>& se
     int mismatches;
     bool multi_done = false;
 
-//    cout << "sw1.size() = " << sw1.size() << " | " << "sw2.size() = " << sw2.size() << endl;
     for (unsigned int i = 0; i < sw1.size(); ++i)
     {
-//        cout << "SpacedWord 1 = " << read_sw(sw1[i].key, weight);
         int bl1 = multimatch(sw1, i);
         if (bl1 > 1)
         {
@@ -81,7 +78,6 @@ vector<int> calc_matches (vector<Word>& sw1, vector<Word>& sw2, vector<char>& se
                 bool singlematch = true;
                 for (unsigned int j = 0 + skip; j < sw2.size() && singlematch; ++j)
                 {
-//                    cout << "   SpacedWord 2 = " << read_sw(sw2[j].key, weight) << endl;
                     int bl2 = multimatch(sw2, j);
                     if (bl2 > 1)
                     {
@@ -89,7 +85,6 @@ vector<int> calc_matches (vector<Word>& sw1, vector<Word>& sw2, vector<char>& se
                         unsigned int limit2 = j + bl2 - 1;
                         for (j; j <= limit2; ++j)
                         {
-//                            cout << " & (multiword - multiword) j = " << j << endl;
                             score = 0;
                             mismatches = 0;
                             if (sw1[i].key > sw2[j].key)
@@ -103,50 +98,34 @@ vector<int> calc_matches (vector<Word>& sw1, vector<Word>& sw2, vector<char>& se
                             }
                             if (sw1[i].key == sw2[j].key)
                             {
-//                                cout << "found a match!\n";
-                                bool real_context = true;
                                 for (unsigned int pat = 0; pat < pattern.size(); ++pat)
                                 {
-//                                    cout << "pattern[pat] = " << pattern[pat] << endl;
                                     if (pattern[pat] == '0')
                                     {
-                                        if ((int) seq1[sw1[i].pos + pat] != 24 && (int) seq2[sw2[j].pos + pat] != 24)
+                                        score += blosum62[ (int) seq1[sw1[i].pos + pat] ][ (int) seq2[sw2[j].pos + pat] ];
+                                        if ( (int) seq1[sw1[i].pos + pat] != (int) seq2[sw2[j].pos + pat])
                                         {
-//                                            cout << "pat = " << pat << " | sw1[i].pos = " << sw1[i].pos << " | sw2[j].pos = " << sw2[j].pos << endl;
-//                                            cout << "score += blosum62[ " << (int) seq1[sw1[i].pos + pat] << " ][ " << (int) seq2[sw2[j].pos + pat] << " ]  | " << blosum62[ (int) seq1[sw1[i].pos + pat] ][ (int) seq2[sw2[j].pos + pat] ] << endl;
-                                            score += blosum62[ (int) seq1[sw1[i].pos + pat] ][ (int) seq2[sw2[j].pos + pat] ];
-                                            if ( (int) seq1[sw1[i].pos + pat] != (int) seq2[sw2[j].pos + pat])
-                                            {
-                                                ++mismatches;
-                                            }
+                                            ++mismatches;
                                         }
-                                        else
-                                        {
-                                            ++wcd;
-                                            real_context = false;
-                                            break;
-                                        }
-
                                     }
+
                                 }
-//                                cout << score << " | " << mismatches << endl;
-                                if (score > threshold && score > best[0] && real_context)
-                                {
-                                    best[0] = score;
-                                    best[1] = mismatches;
-                                }
-                                if (i == limit1 && j == limit2)
-                                {
-                                    skip += bl2;
-                                    multi_done = true;
-                                    break;
-                                }
+                            }
+                            if (score > threshold && score > best[0])
+                            {
+                                best[0] = score;
+                                best[1] = mismatches;
+                            }
+                            if (i == limit1 && j == limit2)
+                            {
+                                skip += bl2;
+                                multi_done = true;
+                                break;
                             }
                         }
                     }
                     else
                     {
-//                        cout << " & (multiword - singleword) j = " << j << endl;
                         if (sw1[i].key > sw2[j].key)
                         {
                             skip = j + 1;
@@ -158,35 +137,21 @@ vector<int> calc_matches (vector<Word>& sw1, vector<Word>& sw2, vector<char>& se
                         }
                         if (sw1[i].key == sw2[j].key)
                         {
-//                            cout << "found a match!\n";
                             score = 0;
                             mismatches = 0;
-                            bool real_context = true;
                             for (unsigned int pat = 0; pat < pattern.size(); ++pat)
                             {
-//                                cout << "pattern[pat] = " << pattern[pat] << endl;
                                 if (pattern[pat] == '0')
                                 {
-                                    if ((int) seq1[sw1[i].pos + pat] != 24 && (int) seq2[sw2[j].pos + pat] != 24)
+                                    score += blosum62[ (int) seq1[sw1[i].pos + pat] ][ (int) seq2[sw2[j].pos + pat] ];
+                                    if ( (int) seq1[sw1[i].pos + pat] != (int) seq2[sw2[j].pos + pat])
                                     {
-    //                                    cout << "pat = " << pat << " | sw1[i].pos = " << sw1[i].pos << " | sw2[j].pos = " << sw2[j].pos << endl;
-    //                                    cout << "score += blosum62[ " << (int) seq1[sw1[i].pos + pat] << " ][ " << (int) seq2[sw2[j].pos + pat] << " ]  | " << blosum62[ (int) seq1[sw1[i].pos + pat] ][ (int) seq2[sw2[j].pos + pat] ] << endl;
-                                        score += blosum62[ (int) seq1[sw1[i].pos + pat] ][ (int) seq2[sw2[j].pos + pat] ];
-                                        if ( (int) seq1[sw1[i].pos + pat] != (int) seq2[sw2[j].pos + pat])
-                                        {
-                                            ++mismatches;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        ++wcd;
-                                        real_context = false;
-                                        break;
+                                        ++mismatches;
                                     }
                                 }
                             }
 //                            cout << score << " | " << mismatches << endl;
-                            if (score >= threshold && score > best[0] && real_context)
+                            if (score >= threshold && score > best[0])
                             {
                                 best[0] = score;
                                 best[1] = mismatches;
@@ -218,7 +183,6 @@ vector<int> calc_matches (vector<Word>& sw1, vector<Word>& sw2, vector<char>& se
             bool go_on = true;
             for (unsigned int j = 0 + skip; j < sw2.size() && go_on; ++j)
             {
-//                cout << "   SpacedWord 2 = " << read_sw(sw2[j].key, weight) << endl;
                 int bl2 = multimatch(sw2, j);
                 if (bl2 > 1)
                 {
@@ -227,8 +191,6 @@ vector<int> calc_matches (vector<Word>& sw1, vector<Word>& sw2, vector<char>& se
                     unsigned int limit = j + bl2 - 1;
                     for (j; j <= limit; ++j)
                     {
-
-//                        cout << " & (singleword - multiword) j = " << j << endl;
                         score = 0;
                         mismatches = 0;
                         if (sw1[i].key > sw2[j].key)
@@ -242,34 +204,18 @@ vector<int> calc_matches (vector<Word>& sw1, vector<Word>& sw2, vector<char>& se
                         }
                         if (sw1[i].key == sw2[j].key)
                         {
-//                            cout << "found a match!\n";
-                            bool real_context = true;
                             for (unsigned int pat = 0; pat < pattern.size(); ++pat)
                             {
                                 if (pattern[pat] == '0')
                                 {
-                                    if ((int) seq1[sw1[i].pos + pat] != 24 && (int) seq2[sw2[j].pos + pat] != 24)
+                                    score += blosum62[ (int) seq1[sw1[i].pos + pat] ][ (int) seq2[sw2[j].pos + pat] ];
+                                    if ( (int) seq1[sw1[i].pos + pat] != (int) seq2[sw2[j].pos + pat])
                                     {
-    //                                cout << "pattern[pat] = " << pattern[pat] << endl;
-
-    //                                    cout << "pat = " << pat << " | sw1[i].pos = " << sw1[i].pos << " | sw2[j].pos = " << sw2[j].pos << endl;
-    //                                    cout << "score += blosum62[ " << (int) seq1[sw1[i].pos + pat] << " ][ " << (int) seq2[sw2[j].pos + pat] << " ]  | " << blosum62[ (int) seq1[sw1[i].pos + pat] ][ (int) seq2[sw2[j].pos + pat] ] << endl;
-                                        score += blosum62[ (int) seq1[sw1[i].pos + pat] ][ (int) seq2[sw2[j].pos + pat] ];
-                                        if ( (int) seq1[sw1[i].pos + pat] != (int) seq2[sw2[j].pos + pat])
-                                        {
-                                            ++mismatches;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        ++wcd;
-                                        real_context = false;
-                                        break;
+                                        ++mismatches;
                                     }
                                 }
                             }
-//                            cout << score << " | " << mismatches << endl;
-                            if (score > threshold && real_context)
+                            if (score > threshold)
                             {
                                 best[0] = score;
                                 best[1] = mismatches;
@@ -289,7 +235,6 @@ vector<int> calc_matches (vector<Word>& sw1, vector<Word>& sw2, vector<char>& se
                 }
                 else
                 {
-//                    cout << " & (singleword - singleword) j = " << j << endl;
                     if (sw1[i].key > sw2[j].key)
                     {
                         skip = j + 1;
@@ -302,37 +247,21 @@ vector<int> calc_matches (vector<Word>& sw1, vector<Word>& sw2, vector<char>& se
                     }
                     if (sw1[i].key == sw2[j].key)
                     {
-//                        cout << "found a match!\n";
                         skip = j + 1;
                         score = 0;
                         mismatches = 0;
-                        bool real_context = true;
                         for (unsigned int pat = 0; pat < pattern.size(); ++pat)
                         {
-//                            cout << "pattern[pat] = " << pattern[pat] << endl;
                             if (pattern[pat] == '0')
                             {
-                                if ((int) seq1[sw1[i].pos + pat] != 24 && (int) seq2[sw2[j].pos + pat] != 24)
+                                score += blosum62[ (int) seq1[sw1[i].pos + pat] ][ (int) seq2[sw2[j].pos + pat] ];
+                                if ( (int) seq1[sw1[i].pos + pat] != (int) seq2[sw2[j].pos + pat])
                                 {
-    //                                cout << "pat = " << pat << " | sw1[i].pos = " << sw1[i].pos << " | sw2[j].pos = " << sw2[j].pos << endl;
-    //                                cout << "score += blosum62[ " << (int) seq1[sw1[i].pos + pat] << " ][ " << (int) seq2[sw2[j].pos + pat] << " ]  | " << blosum62[ (int) seq1[sw1[i].pos + pat] ][ (int) seq2[sw2[j].pos + pat] ] << endl;
-                                    score += blosum62[ (int) seq1[sw1[i].pos + pat] ][ (int) seq2[sw2[j].pos + pat] ];
-                                    if ( (int) seq1[sw1[i].pos + pat] != (int) seq2[sw2[j].pos + pat])
-                                    {
-                                        ++mismatches;
-                                    }
-
-                                }
-                                else
-                                {
-                                    ++wcd;
-                                    real_context = false;
-                                    break;
+                                    ++mismatches;
                                 }
                             }
                         }
-//                        cout << score << " | " << mismatches << endl;
-                        if (score >= threshold && real_context)
+                        if (score >= threshold)
                         {
                             total_mismatches += mismatches;
                             total_dc += dc;
@@ -346,6 +275,5 @@ vector<int> calc_matches (vector<Word>& sw1, vector<Word>& sw2, vector<char>& se
     vector<int> result;
     result.push_back(total_mismatches);
     result.push_back(total_dc);
-//    cout << "done!\n";
     return result;
 }

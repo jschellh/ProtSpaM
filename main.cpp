@@ -97,7 +97,6 @@ int main(int argc, char **argv)
     /* calculating matches */
     cout << " --------------\nCalculating matches...\n";
     double start_matches = omp_get_wtime();
-    int wrong_context_dontcare = 0;
     int length = sequences.size();
     double distance[length][length];
     vector<int> result;
@@ -118,7 +117,7 @@ int main(int argc, char **argv)
 //                cout << "Pattern: ";
 //                print_pattern(patterns[pat]);
 //                cout << endl;
-                result = calc_matches(sequences[i].sorted_words[pat], sequences[j].sorted_words[pat], sequences[i].seq, sequences[j].seq, weight, dc, threshold, patterns[pat], wrong_context_dontcare);
+                result = calc_matches(sequences[i].sorted_words[pat], sequences[j].sorted_words[pat], sequences[i].seq, sequences[j].seq, weight, dc, threshold, patterns[pat]);
                 mismatches_dc.push_back(result);
             }
             int mismatch_sum = 0;
