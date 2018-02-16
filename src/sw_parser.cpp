@@ -7,12 +7,12 @@ vector<Sequence> sw_parser(vector<string>& fileNames, vector<Sequence>& out, vec
 {
     for (unsigned int i = 0; i < fileNames.size() -1; ++i)
     {
-      	ifstream infile(fileNames[i]);
+      	ifstream infile(fileNames.at(i));
       	if (!infile.good() )
         {
-            cerr << "Error opening '" << fileNames[i] << "'. Bailing out.\n";
+            cerr << "Error opening '" << fileNames.at(i) << "'. Bailing out.\n";
         }
-        string header = delete_suffix(delete_prefix(fileNames[i]));
+        string header = delete_suffix(delete_prefix(fileNames.at(i)));
         string line;
         vector<int> starts;
         Sequence tmpSequence;
@@ -38,7 +38,7 @@ vector<Sequence> sw_parser(vector<string>& fileNames, vector<Sequence>& out, vec
             getline(infile, line, '>');
             for (unsigned int j = 0; j < line.size(); ++j)
             {
-                switch (line[j])
+                switch (line.at(j))
                 {
                     case 'A': tmp.push_back(0); break;
                     case 'R': tmp.push_back(1); break;
@@ -66,10 +66,13 @@ vector<Sequence> sw_parser(vector<string>& fileNames, vector<Sequence>& out, vec
                     case '*': tmp.push_back(23); break;
                 }
             }
-            starts.push_back(tmpSequence.seq.size() );
-            for (unsigned int j = 0; j < tmp.size(); ++j)
+            if (tmp.size() >= patterns[0].size() )
             {
-                tmpSequence.set_seq(tmp[j]);
+                starts.push_back(tmpSequence.seq.size() );
+                for (unsigned int j = 0; j < tmp.size(); ++j)
+                {
+                    tmpSequence.set_seq(tmp.at(j));
+                }
             }
         }
         tmpSequence.set_starts(starts);
