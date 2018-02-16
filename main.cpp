@@ -25,10 +25,10 @@ int main(int argc, char **argv)
 		printHelp();
 		exit (EXIT_FAILURE);
 	}
-    int weight = 8;
+    int weight = 6;
     int dc = 40;
     int threshold = 0;
-    int patternNumber = 1;
+    int patternNumber = 5;
     int threads = omp_get_max_threads();
     vector<string> inFiles;
     string output_filename = "DMat";
