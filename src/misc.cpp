@@ -98,22 +98,22 @@ void spacedWords(Sequence& sequence, vector<char> const& pattern)
     vector<Word> words;
     for (unsigned int i = 0; i < sequence.starts.size(); ++i)
     {
-        int stop;
+        unsigned int stop;
         if (i < sequence.starts.size() - 1)
         {
-            stop = sequence.starts.at(i+1);
+            stop = sequence.starts[i+1];
         }
         else
         {
             stop = sequence.seq.size();
         }
-        for (unsigned int j = sequence.starts.at(i); j <= (stop - pattern.size() ); ++j)
+        for (unsigned int j = sequence.starts[i]; j <= (stop - pattern.size() ); ++j)
         {
             Word tmp;
             unsigned long long spacedWord = 0;
             for (unsigned int k = 0; k < pattern.size(); ++k)
             {
-                if (pattern.at(k) == '1')
+                if (pattern[k] == '1')
                 {
                     spacedWord <<= 5;
                     spacedWord |= sequence.seq[j];
