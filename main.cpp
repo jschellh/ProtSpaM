@@ -32,6 +32,7 @@ int main(int argc, char **argv)
     int threads = omp_get_max_threads();
     vector<string> inFiles;
     string output_filename = "DMat";
+    bool tooDistant = false;
     parseParameters(argc, argv, weight, dc, threshold, patternNumber, threads, inFiles, output_filename);
     string input_filename(argv[argc-1]);
     printParameters(weight, dc, threshold, patternNumber, threads, output_filename);
@@ -54,18 +55,18 @@ int main(int argc, char **argv)
     vector<Sequence> sequences;
     if (inFiles.empty() && !input_filename.empty() )
     {
-        cout << "Detected Multifasta!\n";
+        cout << " --------------\nDetected Multifasta!\n";
         parser(input_filename, sequences);
     }
     else if (!inFiles.empty() )
     {
-        cout << "Detected input folder!\n";
+        cout << " --------------\nDetected input folder!\n";
         sw_parser(inFiles, sequences, patterns);
     }
     /* ----------------------------------- */
 
     /* calculating spaced-words */
-    cout << " --------------\nCalculating spaced-words...\n";
+    cout << "Calculating spaced-words...\n";
     double start_sw = omp_get_wtime();
     if (inFiles.empty() && !input_filename.empty() )
     {
@@ -101,22 +102,15 @@ int main(int argc, char **argv)
     double distance[length][length];
     vector<int> result;
     vector<vector<int> > mismatches_dc;
-//    int total_dc;
     for (unsigned int i = 0; i < sequences.size(); ++i)
     {
-//		cout << "checking " << i << ". sequence with \n";
         distance[i][i] = 0;
 	#pragma omp parallel for private (result, mismatches_dc)
         for (unsigned int j = sequences.size() - 1; j > i; --j)
         {
-//			cout << j << ". sequence (" << omp_get_thread_num() << ")" << endl;
             mismatches_dc.clear();
-//            result.clear();
             for (unsigned int pat = 0; pat < patterns.size(); ++pat)
             {
-//                cout << "Pattern: ";
-//                print_pattern(patterns[pat]);
-//                cout << endl;
                 result = calc_matches(sequences[i].sorted_words[pat], sequences[j].sorted_words[pat], sequences[i].seq, sequences[j].seq, weight, dc, threshold, patterns[pat]);
                 mismatches_dc.push_back(result);
             }
@@ -124,16 +118,15 @@ int main(int argc, char **argv)
             int dc_sum = 0;
             for (unsigned int k = 0; k < mismatches_dc.size(); ++k)
             {
-//                cout << "mismatches_dc[k][0] = " << mismatches_dc[k][0] << endl;
                 mismatch_sum += mismatches_dc[k][0];
-//                cout << "mismatches_dc[k][1] = " << mismatches_dc[k][1] << endl;
                 dc_sum += mismatches_dc[k][1];
-//                cout << "mismatch_sum = " << mismatch_sum << " | dc_sum = " << dc_sum << endl;
             }
             double mismatch_rate = (double) mismatch_sum / dc_sum;
-//            total_dc += dc_sum;
-//            cout << "mismatch_rate = " << mismatch_rate << endl;
             distance[i][j] = calc_distance(mismatch_rate);
+            if (mismatch_rate > 0.8541)
+            {
+                tooDistant = true;
+            }
             distance[j][i] = distance[i][j];
         }
     }
@@ -146,7 +139,23 @@ int main(int argc, char **argv)
     output_distance << '\t' << sequences.size() << endl;
     for (unsigned int i = 0; i < sequences.size(); ++i)
     {
-        output_distance << sequences[i].header;
+        if (sequences[i].header.size() == 10)
+        {
+            output_distance << sequences[i].header;
+        }
+        else if (sequences[i].header.size() > 10)
+        {
+            output_distance << sequences[i].header.substr(0,9);
+        }
+        else
+        {
+            output_distance << sequences[i].header;
+            for (unsigned int n = 0; n < 10 - sequences[i].header.size(); ++n)
+            {
+                output_distance << " ";
+
+            }
+        }
         for (unsigned int j = 0; j < sequences.size(); ++j)
         {
             if (distance[i][j] == 0)
@@ -155,7 +164,7 @@ int main(int argc, char **argv)
             }
             else if (std::isnan(distance[i][j]) != 0)
             {
-                output_distance << "5.000000"  << "  " ;
+                output_distance << "10.000000"  << "  " ;
             }
             else
             {
@@ -165,6 +174,18 @@ int main(int argc, char **argv)
         output_distance << endl;
     }
     output_distance.close();
+    if (tooDistant)
+    {
+        cout << "\n\t>>>>>>>>>>>>>>>>>>>> Warning <<<<<<<<<<<<<<<<<<<<\n" <<
+        "\tThe distance between at least two organisms is too big resulting in a 'nan' value!\n" <<
+        "\tA dummy value (10.0) has been inserted instead for those pairwise distances!\n" <<
+        "\tThus the resulting distance matrix is not to be considered reliable!\n" <<
+        "\tPossible solutions to resolve this issue:\n" <<
+        "\t\t- decrease the weight of the patterns (-w option; default = 6)\n" <<
+        "\t\t- lower the threshold to include more matches(-s option; default = 0)\n" <<
+        "\t\t- increase the amount of input data for these species (whole-proteomes are advised!)\n"<<
+        "\t>>>>>>>>>>>>>>>>>>>> Warning <<<<<<<<<<<<<<<<<<<<\n";
+    }
     /* ----------------------- */
 
     cout << " --------------\nTotal run-time:\n";
