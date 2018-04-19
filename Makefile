@@ -6,13 +6,13 @@ OBJDIR = ./obj/
 objects = $(addprefix $(OBJDIR), main.o Sequence.o Word.o misc.o calc_matches.o parser.o pattern.o patternset.o rasbcomp.o rasbhari.o rasbimp.o rasbopt.o sensmem.o speedsens.o parameters.o sw_parser.o)
 
 Debug: all
-all: protfswm
+all: protspam
 
-protfswm: $(objects)
+protspam: $(objects)
 	mkdir -p bin/Debug
-	$(CC) -Wall -o bin/Debug/protfswm $(objects)
+	$(CC) -Wall -o bin/Debug/protspam $(objects)
 	mkdir -p ~/bin
-	cp bin/Debug/protfswm ~/bin/protfswm
+	cp bin/Debug/protspam ~/bin/protspam
 
 $(OBJDIR)main.o: main.cpp
 	mkdir -p obj
@@ -64,7 +64,7 @@ $(OBJDIR)sw_parser.o: src/sw_parser.cpp
 	$(CC) $(CFLAGS) src/sw_parser.cpp -o $@
 
 clean:
-	rm -rf $(OBJDIR)*.o bin/Debug/protfswm	~/bin/protfswm
+	rm -rf $(OBJDIR)*.o bin/Debug/protspam	~/bin/protspam
 
 
 

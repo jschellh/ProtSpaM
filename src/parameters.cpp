@@ -5,7 +5,7 @@ using namespace std;
 
 void printHelp(){
     string help =
-    "\nUsage: ./protfswm [options] <sequence> "
+    "\nUsage: ./protspam [options] <sequence> "
     "\n"
     "\n<sequence> format:"
     "\n\t Sequence must be in FASTA format. All concatenated proteomes must be contained in one FASTA file. Example:"
