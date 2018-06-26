@@ -2,7 +2,9 @@ obj/
 bin/
 protfswm.depend
 protfswm.layout
+ProtSpaM.layout
 protfswm.cbp
+ProtSpaM.cbp
 .directory
 afpd.cbp
 afpd.depend
