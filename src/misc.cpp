@@ -140,7 +140,7 @@ double calc_distance (double mmr)
 string delete_suffix (string file)
 {
     string out;
-    unsigned int found = file.find(".");
+    unsigned int found = file.find_last_of(".");
     if (found != string::npos)
     {
         out = file.substr(0, found);
