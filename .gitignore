@@ -9,3 +9,6 @@ ProtSpaM.cbp
 afpd.cbp
 afpd.depend
 afpd.layout
+cmake-build-debug
+CMakeLists.txt
+.idea
