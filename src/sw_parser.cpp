@@ -30,6 +30,9 @@ vector<Sequence> sw_parser(vector<string>& fileNames, vector<Sequence>& out, vec
             }
             tmpSequence.set_header(name);
         }
+        else {
+            tmpSequence.set_header(header);
+        }
         getline(infile, line, '>');
         while (!infile.eof())
         {
