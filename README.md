@@ -1,45 +1,28 @@
-to compile type:
-	make
+# Prot-SpaM
 
-run with:
-	./protspam [options] -l <filelist>
+### Note
+Currently this program only supports Linux.
 
-<filelist>:
-	A plain text file, specifying the relative path to each input dataset.
-	To create the "filelist" simply run:
+### Compilation
+cd into the root directory (containing the 'Makefile') and type:
 
-		I.	"ls ./path/to/input/* > filelist"		## assuming all your proteome files (*.fasta, *.faa, etc.) are stored in the "input"-folder.
-					or
-		II.	"ls *.fna > filelist"								## assuming all your proteome files are stored in the current directory and they end with an *.fna extension.
+```	make ```
 
-	Note:
+### Run
 
-		Which file extensions the input files have does not matter as long as the "filelist" contains the correct path to the file.
+```	./protspam [options] -l <filelist> ```
 
-		Method I:
-			The asterix (*) after the containing folder is mandatory, so that "ls" will return the relative filepaths instead of just the filenames.
-			"protspam" has to be called from the folder containing the "filelist".
+### Filelist
 
-		Method II:
-			Since this command does just output the filenames...
-			 	a) the "filelist" has to be in the same folder
-				b) "protspam" has to be called from the very same folder			
+The program takes a plain text file containing the relative paths to each input
+dataset. To create your 'filelist' simply type:
 
+``` ls -1 path/to/input/* > filelist ```
 
-<sequence> format:
-	Sequence must be in FASTA format. All protein sequences of one proteome must be contained in one FASTA file. Example:
+This will list each file in specified directory, one file per line.
 
->Protein1
-RAKSDLKEASDKE..
->Protein2
-ATSDLAGTASDKE..
->Protein3
-ARNCQEFGSDSDW..
-..
-
-etc.
-
-Options:
+### Options
+```
 	-h/-?: print this help and exit
 	-w <integer>: pattern weight (default 6)
 	-d <integer>: number of don't-care positions (default 40)
@@ -48,17 +31,34 @@ Options:
 	-t <integer>: number of threads (default: omp_get_max_threads() )
 	-o <integer>: filename for distance matrix (default: DMat)
 	-l <filename>: specify a list of files to read as input (one inputfile per organism containing each sequence, seperated by headers)
+```
 
-_______________________________________________________________________________________________________________
+### Sequence format:
+
+Sequence must be in FASTA format. All protein sequences of one proteome must be contained in one FASTA file.
+
+Example:
+```
+>Protein1
+RAKSDLKEASDKE..
+>Protein2
+ATSDLAGTASDKE..
+>Protein3
+ARNCQEFGSDSDW..
+..
+```
+
+### Citation:
+```
 Scientific publications using filtered spaced word matches should cite:
 
 Leimeister, C. A., Schellhorn, J., Schoebel, S., Gerth, M., Bleidorn, C., & Morgenstern, B. (2018).
 Prot-SpaM: Fast alignment-free phylogeny reconstruction based on whole-proteome sequences.
 bioRxiv, 306142.
-_______________________________________________________________________________________________________________
+```
 
-Paper Abstract:
-
+### Paper Abstract:
+```
 Word-based or "alignment-free" sequence comparison has become an active area of research in bioinformatics.
 Recently, fast word-based algorithms have been proposed that are able to accurately estimate phylogenetic
 distances between genomic DNA sequences without the need to calculate full sequence alignments. One of these
@@ -68,7 +68,8 @@ We show that Prot-SpaM can accurately estimate phylogenetic distances, and that 
 calculate phylogenetic trees from whole proteomes in a matter of seconds.
 For various groups of taxa, we show that trees calculated with Prot-SpaM are of high quality.
 The source code of our software is available through Github: https://github.com/jschellh/ProtSpaM
+```
 
 
-contact:
+### Contact:
 jendrik.schellhorn@stud.uni-goettingen.de
