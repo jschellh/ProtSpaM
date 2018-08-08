@@ -30,7 +30,7 @@ This will list each file in specified directory, one file per line.
 	-p <integer>: number of patterns used (default 5)
 	-t <integer>: number of threads (default: omp_get_max_threads() )
 	-o <integer>: filename for distance matrix (default: DMat)
-	-l <filename>: specify a list of files to read as input (one inputfile per organism containing each sequence, seperated by headers)
+	-l <filename>: specify a list of files to read as input
 ```
 
 ### Sequence format:
