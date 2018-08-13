@@ -11,6 +11,7 @@
 
         void print_patterns (std::vector<std::vector<char> > patterns);
         void print_pattern (std::vector<char> pattern);
+        std::vector<std::vector<char>> parsePatterns (std::string patternSet);
         std::string read_word (unsigned long long spaced_word, unsigned int weight);
         bool isContext(unsigned long long spaced_word, unsigned int weight);
         void spacedWords (Sequence& sequence, std::vector<char> const& pattern, std::vector<Word>& out);

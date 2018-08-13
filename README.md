@@ -27,10 +27,12 @@ This will list each file in specified directory, one file per line.
 	-w <integer>: pattern weight (default 6)
 	-d <integer>: number of don't-care positions (default 40)
 	-s <integer>: the minimum score of a spaced-word match to be considered homologous (default: 0)
-	-p <integer>: number of patterns used (default 5)
+	-m <integer>: number of patterns used (default 5)
 	-t <integer>: number of threads (default: omp_get_max_threads() )
-	-o <integer>: filename for distance matrix (default: DMat)
+	-o <filename>: filename for distance matrix (default: DMat)
 	-l <filename>: specify a list of files to read as input
+	-z : if option is set, the pattern set used will be stored in patterns.txt"
+	-p <filename>: filename of pattern set to load and reuse"
 ```
 
 ### Sequence format:

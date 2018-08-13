@@ -22,21 +22,24 @@ void printHelp(){
     "\n\t -w <integer>: pattern weight (default 6)"
     "\n\t -d <integer>: number of don't-care positions (default 40)"
     "\n\t -s <integer>: the minimum score of a spaced-word match to be considered homologous (default: 0)"
-    "\n\t -p <integer>: number of patterns used (default 5)"
+    "\n\t -m <integer>: number of patterns used (default 5)"
     "\n\t -t <integer>: number of threads (default: omp_get_max_threads() )"
-    "\n\t -o <integer>: filename for distance matrix (default: DMat)"
-    "\n\t -l <filename>: specify a list of files to read as input (one inputfile per organism containing each sequence, seperated by headers) "
+    "\n\t -o <filename>: filename for distance matrix (default: DMat)"
+    "\n\t -z : if option is set, the pattern set used will be stored in patterns.txt"
+    "\n\t -p <filename>: filename of pattern set to load and reuse"
+    "\n\t -l <filename>: specify a list of files to read as input (one input file per organism containing each sequence, seperated by headers) "
     "\n";
 	cout << help << endl;
 }
 
-void parseParameters(int argc, char *argv[], int& weight, int& dc, int& threshold, int& patterns, int& threads, vector<string>& inputFilenames, string& output){
+void parseParameters(int argc, char *argv[], int& weight, int& dc, int& threshold, int& patterns, int& threads,
+                     vector<string>& inputFilenames, string& output, bool& savePatterns, string& loadPatterns) {
 	int option_char;
-	 while ((option_char = getopt (argc, argv, "w:d:s:p:t:l:o:h")) != -1){
+	 while ((option_char = getopt (argc, argv, "w:d:s:m:t:l:o:zp:h")) != -1){
 		switch (option_char){
 			case 'w':
 				weight = atoi (optarg);
-				if(weight<4 || weight > 12){
+				if(weight < 4 || weight > 12){
 					std::cerr << "Weight '-w' must be between 4 and 12"<< std::endl;
 					exit (EXIT_FAILURE);
 				}
@@ -51,15 +54,15 @@ void parseParameters(int argc, char *argv[], int& weight, int& dc, int& threshol
 			case 's':
 				threshold = atoi (optarg);
 				break;
-           	case 'p':
+           	case 'm':
 				patterns = atoi (optarg);
 				if (patterns < 1 || patterns > 10){
-					std::cerr << "Number of patterns '-p' must be an integer between 1 and 10"<< std::endl;
+					std::cerr << "Number of patterns '-m' must be an integer between 1 and 10"<< std::endl;
 				}
 				break;
 			case 't':
 				threads = atoi (optarg);
-				if(threads<1){
+				if(threads < 1){
 					std::cerr << "threads '-t' must be an integer larger than 0"<< std::endl;
 					exit (EXIT_FAILURE);
 				}
@@ -82,10 +85,15 @@ void parseParameters(int argc, char *argv[], int& weight, int& dc, int& threshol
             case 'o':
                 output = optarg;
                 break;
+		    case 'z':
+		        savePatterns = true;
+		        break;
+		    case 'p':
+		        loadPatterns = optarg;
+		        break;
 			case 'h':
 				printHelp();
 				exit (EXIT_SUCCESS);
-				break;
 			case '?':
 				printHelp();
 				exit (EXIT_FAILURE);

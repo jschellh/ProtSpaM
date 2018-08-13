@@ -44,25 +44,45 @@ int main(int argc, char **argv)
     int threshold = 0;
     int patternNumber = 5;
     int threads = omp_get_max_threads();
+    string loadPatterns;
+    bool savePatterns = false;
     vector<string> inFiles;
     string output_filename = "DMat";
     bool tooDistant = false;
-    parseParameters(argc, argv, weight, dc, threshold, patternNumber, threads, inFiles, output_filename);
+    parseParameters(argc, argv, weight, dc, threshold, patternNumber, threads, inFiles, output_filename, savePatterns, loadPatterns);
     string input_filename(argv[argc-1]);
     printParameters(weight, dc, threshold, patternNumber, threads, output_filename);
     omp_set_num_threads(threads);
 
-    /* creating patternsets */
-    rasbhari rasb_set = rasb_implement::hillclimb_oc(patternNumber, weight, dc, dc);
-    patternset PatSet = rasb_set.pattern_set();
+    /* patternsets */
     vector<vector<char> > patterns;
-    for (unsigned int i = 0; i < PatSet.size(); ++i)
-    {
-        string pattern = PatSet[i].to_string();
-        vector<char> tmp(pattern.begin(), pattern.end());
-        patterns.push_back(tmp);
+    if (!loadPatterns.empty()) {
+        patterns = parsePatterns(loadPatterns);
+    }
+    else {
+        rasbhari rasb_set = rasb_implement::hillclimb_oc(patternNumber, weight, dc, dc);
+        patternset PatSet = rasb_set.pattern_set();
+        for (unsigned int i = 0; i < PatSet.size(); ++i)
+        {
+            string pattern = PatSet[i].to_string();
+            vector<char> tmp(pattern.begin(), pattern.end());
+            patterns.push_back(tmp);
+        }
     }
     print_patterns(patterns);
+    // output pattern set
+    if (savePatterns) {
+        ofstream patOut;
+        patOut.open("patterns.txt");
+        for (auto &p : patterns) {
+            for (auto &c : p) {
+                patOut << c;
+            }
+            patOut << endl;
+        }
+        patOut.close();
+    }
+
     /* -------------------- */
 
     /* Parsing and calculating spacedWords */

@@ -1,3 +1,4 @@
+#include <fstream>
 #include "misc.h"
 
 using namespace std;
@@ -22,6 +23,7 @@ void print_patterns (vector<vector<char> > patterns)
     cout << endl;
 }
 
+/* Prints out a given pattern */
 void print_pattern (vector<char> pattern)
 {
     for (unsigned int i = 0; i < pattern.size(); ++i)
@@ -31,6 +33,29 @@ void print_pattern (vector<char> pattern)
     cout << endl;
 }
 
+/* Parse pattern set from file */
+vector<vector<char>> parsePatterns (string patternSet)
+{
+    ifstream patIn(patternSet);
+    if (!patIn.good() )
+    {
+        cerr << "Error opening '" << patternSet << "'. Bailing out.\n";
+    }
+    vector<vector<char>> out;
+    string line;
+    while (!patIn.eof())
+    {
+        vector<char> pattern;
+        getline(patIn, line);
+        for (auto &c : line)
+        {
+            pattern.push_back(c);
+        }
+        out.push_back(pattern);
+    }
+    patIn.close();
+    return out;
+}
 
 /* Returns a string of a given long word*/
 vector<string> translate = {"A","R","N","D","C","Q","E","G","H","I","L","K","M","F","P","S","T","W","Y","V","B","Z","X","*","J"};
