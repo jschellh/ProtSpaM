@@ -47,11 +47,13 @@ vector<vector<char>> parsePatterns (string patternSet)
     {
         vector<char> pattern;
         getline(patIn, line);
-        for (auto &c : line)
-        {
-            pattern.push_back(c);
+        if (! line.empty() ) {
+            for (auto &c : line)
+            {
+                pattern.push_back(c);
+            }
+            out.push_back(pattern);
         }
-        out.push_back(pattern);
     }
     patIn.close();
     return out;

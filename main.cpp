@@ -78,7 +78,9 @@ int main(int argc, char **argv)
             for (auto &c : p) {
                 patOut << c;
             }
-            patOut << endl;
+            if (p != patterns[patterns.size() - 1]) {
+                patOut << endl;
+            }
         }
         patOut.close();
     }
