@@ -72,6 +72,9 @@ For various groups of taxa, we show that trees calculated with Prot-SpaM are of 
 The source code of our software is available through Github: https://github.com/jschellh/ProtSpaM
 ```
 
+### Datasets:
+
+You can download the datasets referenced in the paper [here](http://projects.gobics.de/data/protspam/paperData.tgz).
 
 ### Contact:
 jendrik.schellhorn@stud.uni-goettingen.de
