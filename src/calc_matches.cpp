@@ -57,7 +57,7 @@ int multimatch (vector<Word>& sortedWords, int start)
     return multimatch_length;
 }
 
-vector<int> calc_matches (vector<Word>& sw1, vector<Word>& sw2, vector<char>& seq1, vector<char>& seq2, int& weight, int& dc, int& threshold, vector<char> pattern)
+double calc_matches (Sequence& species1, Sequence& species2, int& weight, int& dc, int& threshold, vector<vector<char> >& patterns)
 {
     int skip = 0;
     int total_mismatches = 0;
@@ -65,215 +65,178 @@ vector<int> calc_matches (vector<Word>& sw1, vector<Word>& sw2, vector<char>& se
     int score;
     int mismatches;
     bool multi_done = false;
+    vector<char>& seq1 = species1.seq;
+    vector<char>& seq2 = species2.seq;
+    vector<pair<int, int>> mismatch_rates;
 
-    for (unsigned int i = 0; i < sw1.size(); ++i)
-    {
-        int bl1 = multimatch(sw1, i);
-        if (bl1 > 1)
-        {
-            vector<int> best = {threshold - 1, 0};
-            unsigned int limit1 = i + bl1 - 1;
-            for (i; i <= limit1; ++i)
-            {
-                bool singlematch = true;
-                for (unsigned int j = 0 + skip; j < sw2.size() && singlematch; ++j)
-                {
-                    int bl2 = multimatch(sw2, j);
-                    if (bl2 > 1)
-                    {
-                        singlematch = false;
-                        unsigned int limit2 = j + bl2 - 1;
-                        for (j; j <= limit2; ++j)
-                        {
-                            score = 0;
-                            mismatches = 0;
-                            if (sw1[i].key > sw2[j].key)
-                            {
-                                skip += bl2;
+    for (int currentPattern = 0; currentPattern < patterns.size(); ++currentPattern) {
+        vector<Word>& sw1 = species1.sorted_words[currentPattern];
+        vector<Word>& sw2 = species2.sorted_words[currentPattern];
+        const vector<char>& pattern = patterns[currentPattern];
+        for (unsigned int i = 0; i < sw1.size(); ++i) {
+            int bl1 = multimatch(sw1, i);
+            if (bl1 > 1) {
+                vector<int> best = {threshold - 1, 0};
+                unsigned int limit1 = i + bl1 - 1;
+                for (i; i <= limit1; ++i) {
+                    bool singleMatch = true;
+                    for (unsigned int j = 0 + skip; j < sw2.size() && singleMatch; ++j) {
+                        int bl2 = multimatch(sw2, j);
+                        if (bl2 > 1) {
+                            singleMatch = false;
+                            unsigned int limit2 = j + bl2 - 1;
+                            for (j; j <= limit2; ++j) {
+                                score = 0;
+                                mismatches = 0;
+                                if (sw1[i].key > sw2[j].key) {
+                                    skip += bl2;
+                                    continue;
+                                }
+                                if (sw1[i].key < sw2[j].key) {
+                                    break;
+                                }
+                                if (sw1[i].key == sw2[j].key) {
+                                    for (unsigned int pat = 0; pat < patterns.size(); ++pat) {
+                                        if (pattern[pat] == '0') {
+                                            score += blosum62[ (int) seq1[sw1[i].pos + pat] ][ (int) seq2[sw2[j].pos + pat] ];
+                                            if ( (int) seq1[sw1[i].pos + pat] != (int) seq2[sw2[j].pos + pat]) {
+                                                ++mismatches;
+                                            }
+                                        }
+                                    }
+                                }
+                                if (score > threshold && score > best[0]) {
+                                    best[0] = score;
+                                    best[1] = mismatches;
+                                }
+                                if (i == limit1 && j == limit2) {
+                                    skip += bl2;
+                                    multi_done = true;
+                                    break;
+                                }
+                            }
+                        }
+                        else {
+                            if (sw1[i].key > sw2[j].key) {
+                                skip = j + 1;
                                 continue;
                             }
-                            if (sw1[i].key < sw2[j].key)
-                            {
+                            if (sw1[i].key < sw2[j].key) {
                                 break;
                             }
-                            if (sw1[i].key == sw2[j].key)
-                            {
-                                for (unsigned int pat = 0; pat < pattern.size(); ++pat)
-                                {
-                                    if (pattern[pat] == '0')
-                                    {
+                            if (sw1[i].key == sw2[j].key) {
+                                score = 0;
+                                mismatches = 0;
+                                for (unsigned int pat = 0; pat < pattern.size(); ++pat) {
+                                    if (pattern[pat] == '0') {
                                         score += blosum62[ (int) seq1[sw1[i].pos + pat] ][ (int) seq2[sw2[j].pos + pat] ];
-                                        if ( (int) seq1[sw1[i].pos + pat] != (int) seq2[sw2[j].pos + pat])
-                                        {
+                                        if ( (int) seq1[sw1[i].pos + pat] != (int) seq2[sw2[j].pos + pat]) {
                                             ++mismatches;
                                         }
                                     }
-
                                 }
-                            }
-                            if (score > threshold && score > best[0])
-                            {
-                                best[0] = score;
-                                best[1] = mismatches;
-                            }
-                            if (i == limit1 && j == limit2)
-                            {
-                                skip += bl2;
-                                multi_done = true;
+                                if (score >= threshold && score > best[0]) {
+                                    best[0] = score;
+                                    best[1] = mismatches;
+                                }
+                                if (i == limit1) {
+                                    skip = j + 1;
+                                    multi_done = true;
+                                    break;
+                                }
                                 break;
                             }
                         }
                     }
-                    else
-                    {
-                        if (sw1[i].key > sw2[j].key)
-                        {
+                }
+                if (best[0] >= threshold) {
+                    total_mismatches += best[1];
+                    total_dc += dc;
+                }
+                if (bl1 > 1 && multi_done) {
+                    --i;
+                    multi_done = false;
+                }
+            }
+            else {
+                bool go_on = true;
+                for (unsigned int j = 0 + skip; j < sw2.size() && go_on; ++j) {
+                    int bl2 = multimatch(sw2, j);
+                    if (bl2 > 1) {
+                        go_on = false;
+                        vector<int> best = {threshold - 1, 0};
+                        unsigned int limit = j + bl2 - 1;
+                        for (j; j <= limit; ++j) {
+                            score = 0;
+                            mismatches = 0;
+                            if (sw1[i].key > sw2[j].key) {
+                                skip += bl2;
+                                continue;
+                            }
+                            if (sw1[i].key < sw2[j].key) {
+                                break;
+                            }
+                            if (sw1[i].key == sw2[j].key) {
+                                for (unsigned int pat = 0; pat < pattern.size(); ++pat) {
+                                    if (pattern[pat] == '0') {
+                                        score += blosum62[ (int) seq1[sw1[i].pos + pat] ][ (int) seq2[sw2[j].pos + pat] ];
+                                        if ( (int) seq1[sw1[i].pos + pat] != (int) seq2[sw2[j].pos + pat]) {
+                                            ++mismatches;
+                                        }
+                                    }
+                                }
+                                if (score > threshold) {
+                                    best[0] = score;
+                                    best[1] = mismatches;
+                                }
+                                if (j == limit) {
+                                    if (best[0] > threshold) {
+                                        total_mismatches += best[1];
+                                        total_dc += dc;
+                                    }
+                                    skip += bl2;
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        if (sw1[i].key > sw2[j].key) {
                             skip = j + 1;
                             continue;
                         }
-                        if (sw1[i].key < sw2[j].key)
-                        {
-							break;
+                        if (sw1[i].key < sw2[j].key) {
+                            break;
                         }
-                        if (sw1[i].key == sw2[j].key)
-                        {
+                        if (sw1[i].key == sw2[j].key) {
+                            skip = j + 1;
                             score = 0;
                             mismatches = 0;
-                            for (unsigned int pat = 0; pat < pattern.size(); ++pat)
-                            {
-                                if (pattern[pat] == '0')
-                                {
+                            for (unsigned int pat = 0; pat < pattern.size(); ++pat) {
+                                if (pattern[pat] == '0') {
                                     score += blosum62[ (int) seq1[sw1[i].pos + pat] ][ (int) seq2[sw2[j].pos + pat] ];
-                                    if ( (int) seq1[sw1[i].pos + pat] != (int) seq2[sw2[j].pos + pat])
-                                    {
+                                    if ( (int) seq1[sw1[i].pos + pat] != (int) seq2[sw2[j].pos + pat]) {
                                         ++mismatches;
                                     }
                                 }
                             }
-//                            cout << score << " | " << mismatches << endl;
-                            if (score >= threshold && score > best[0])
-                            {
-                                best[0] = score;
-                                best[1] = mismatches;
-                            }
-                            if (i == limit1)
-                            {
-                                skip = j + 1;
-                                multi_done = true;
-                                break;
+                            if (score >= threshold) {
+                                total_mismatches += mismatches;
+                                total_dc += dc;
                             }
                             break;
                         }
                     }
                 }
             }
-            if (best[0] >= threshold)
-            {
-                total_mismatches += best[1];
-                total_dc += dc;
-            }
-            if (bl1 > 1 && multi_done)
-            {
-                --i;
-                multi_done = false;
-            }
         }
-        else
-        {
-            bool go_on = true;
-            for (unsigned int j = 0 + skip; j < sw2.size() && go_on; ++j)
-            {
-                int bl2 = multimatch(sw2, j);
-                if (bl2 > 1)
-                {
-                    go_on = false;
-                    vector<int> best = {threshold - 1, 0};
-                    unsigned int limit = j + bl2 - 1;
-                    for (j; j <= limit; ++j)
-                    {
-                        score = 0;
-                        mismatches = 0;
-                        if (sw1[i].key > sw2[j].key)
-                        {
-                            skip += bl2;
-							continue;
-                        }
-                        if (sw1[i].key < sw2[j].key)
-                        {
-                            break;
-                        }
-                        if (sw1[i].key == sw2[j].key)
-                        {
-                            for (unsigned int pat = 0; pat < pattern.size(); ++pat)
-                            {
-                                if (pattern[pat] == '0')
-                                {
-                                    score += blosum62[ (int) seq1[sw1[i].pos + pat] ][ (int) seq2[sw2[j].pos + pat] ];
-                                    if ( (int) seq1[sw1[i].pos + pat] != (int) seq2[sw2[j].pos + pat])
-                                    {
-                                        ++mismatches;
-                                    }
-                                }
-                            }
-                            if (score > threshold)
-                            {
-                                best[0] = score;
-                                best[1] = mismatches;
-                            }
-							if (j == limit)
-                            {
-                                if (best[0] > threshold)
-                                {
-                                    total_mismatches += best[1];
-                                    total_dc += dc;
-                                }
-                                skip += bl2;
-                            }
-                        }
-                    }
-
-                }
-                else
-                {
-                    if (sw1[i].key > sw2[j].key)
-                    {
-                        skip = j + 1;
-						continue;
-                    }
-                    if (sw1[i].key < sw2[j].key)
-                    {
-                        break;
-
-                    }
-                    if (sw1[i].key == sw2[j].key)
-                    {
-                        skip = j + 1;
-                        score = 0;
-                        mismatches = 0;
-                        for (unsigned int pat = 0; pat < pattern.size(); ++pat)
-                        {
-                            if (pattern[pat] == '0')
-                            {
-                                score += blosum62[ (int) seq1[sw1[i].pos + pat] ][ (int) seq2[sw2[j].pos + pat] ];
-                                if ( (int) seq1[sw1[i].pos + pat] != (int) seq2[sw2[j].pos + pat])
-                                {
-                                    ++mismatches;
-                                }
-                            }
-                        }
-                        if (score >= threshold)
-                        {
-                            total_mismatches += mismatches;
-                            total_dc += dc;
-                        }
-                        break;
-                    }
-                }
-            }
-        }
+        mismatch_rates.emplace_back(total_mismatches, total_dc);
     }
-    vector<int> result;
-    result.push_back(total_mismatches);
-    result.push_back(total_dc);
-    return result;
+
+    int mm = 0;
+    int dontCare = 0;
+    for (auto pair : mismatch_rates) {
+        mm += pair.first;
+        dontCare += pair.second;
+    }
+    return (double) mm / dontCare;
 }

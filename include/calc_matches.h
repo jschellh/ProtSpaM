@@ -1,10 +1,11 @@
 #ifndef CALC_MATCHES_H
 #define CALC_MATCHES_H
 #include "Word.h"
+#include "Sequence.h"
 #include <vector>
 #include <string>
 #include <iostream>
 
-std::vector<int> calc_matches(std::vector<Word>& sw1, std::vector<Word>& sw2, std::vector<char>& seq1, std::vector<char>& seq2, int& weight, int& dc, int& threshold, std::vector<char> pattern);
+double calc_matches(Sequence& s1, Sequence& s2, int& weight, int& dc, int& threshold, std::vector<std::vector<char> >& patterns);
 
 #endif // CALC_MATCHES_H
