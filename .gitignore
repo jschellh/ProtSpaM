@@ -12,3 +12,4 @@ afpd.layout
 cmake-build-debug
 CMakeLists.txt
 .idea
+.vscode
