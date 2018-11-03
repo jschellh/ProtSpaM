@@ -32,7 +32,15 @@
 using namespace std;
 
 int main(int argc, char **argv) {
+    // time
+    double serial_part = omp_get_wtime();
+    double serial_runtime = 0;
+    double parallel_runtime = 0;
+    double parallel_part;
+    // ==========
+
     double start = omp_get_wtime();
+
     if(argc < 2) {
 		printHelp();
 		exit (EXIT_FAILURE);
@@ -98,6 +106,10 @@ int main(int argc, char **argv) {
 
     /* calculating spaced-words */
     cout << "Calculating spaced-words...\n";
+    // time
+    serial_runtime += omp_get_wtime() - serial_part;
+    parallel_part += omp_get_wtime();
+    // =============
     double start_sw = omp_get_wtime();
     if (inFiles.empty() && !input_filename.empty() ) {
         #pragma omp parallel for
@@ -116,7 +128,8 @@ int main(int argc, char **argv) {
             }
         }
     }
-
+    parallel_runtime += omp_get_wtime() - parallel_part;
+    serial_part = omp_get_wtime();
     time_elapsed(start_sw);
     /* ------------------------ */
 
@@ -125,7 +138,10 @@ int main(int argc, char **argv) {
     double start_matches = omp_get_wtime();
     int length = (int) sequences.size();
     double distance[length][length];
-
+    // time
+    serial_runtime += omp_get_wtime() - serial_part;
+    parallel_part = omp_get_wtime();
+    // ===================
     for (unsigned int i = 0; i < sequences.size(); ++i) {
         distance[i][i] = 0;
 	#pragma omp parallel for
@@ -136,6 +152,10 @@ int main(int argc, char **argv) {
             distance[j][i] = distance[i][j];
         }
     }
+    // time
+    parallel_runtime += omp_get_wtime() - parallel_part;
+    serial_part = omp_get_wtime();
+    // ===========
     time_elapsed(start_matches);
     /* ------------------------ */
 
@@ -184,6 +204,9 @@ int main(int argc, char **argv) {
     /* ----------------------- */
 
     cout << " --------------\nTotal run-time:\n";
+    double total_runtime = omp_get_wtime() - start;
     time_elapsed(start);
+    double parallelizable = parallel_runtime / total_runtime;
+    cout << "parallelizable = " << parallelizable << endl;
     return 0;
 }
