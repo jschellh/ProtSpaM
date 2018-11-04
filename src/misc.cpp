@@ -245,3 +245,48 @@ void time_elapsed(double start)
         cout << "Time elapsed: " << exec_time << "s\n";
     }
 }
+
+void outputDistanceMatrix (const vector<Sequence>& species, const string& fileName,
+                           const vector<vector<double> >& distanceMatrix, const bool& tooDistant) {
+    ofstream output_distance;
+    output_distance.open(fileName);
+    output_distance << '\t' << species.size() << endl;
+    for (unsigned int i = 0; i < species.size(); ++i) {
+        if (species[i].header.size() == 10) {
+            output_distance << species[i].header;
+        }
+        else if (species[i].header.size() > 10) {
+            output_distance << species[i].header.substr(0,9);
+        }
+        else {
+            output_distance << species[i].header;
+            for (unsigned int n = 0; n < 10 - species[i].header.size(); ++n) {
+                output_distance << " ";
+            }
+        }
+        for (unsigned int j = 0; j < species.size(); ++j) {
+            if (distanceMatrix[i][j] == 0) {
+                output_distance << "0.000000" << "  " ;
+            }
+            else if (std::isnan(distanceMatrix[i][j]) != 0) {
+                output_distance << "10.000000"  << "  " ;
+            }
+            else {
+                output_distance << distanceMatrix[i][j] << "  " ;
+            }
+        }
+        output_distance << endl;
+    }
+    output_distance.close();
+    if (tooDistant) {
+        cout << "\n\t>>>>>>>>>>>>>>>>>>>> Warning <<<<<<<<<<<<<<<<<<<<\n" <<
+             "\tThe distance between at least two organisms is too big resulting in a 'nan' value!\n" <<
+             "\tA dummy value (10.0) has been inserted instead for those pairwise distances!\n" <<
+             "\tThus the resulting distance matrix is not to be considered reliable!\n" <<
+             "\tPossible solutions to resolve this issue:\n" <<
+             "\t\t- decrease the weight of the patterns (-w option; default = 6)\n" <<
+             "\t\t- lower the threshold to include more matches(-s option; default = 0)\n" <<
+             "\t\t- increase the amount of input data for these species (whole-proteomes are advised!)\n"<<
+             "\t>>>>>>>>>>>>>>>>>>>> Warning <<<<<<<<<<<<<<<<<<<<\n";
+    }
+}

@@ -60,8 +60,8 @@ int main(int argc, char **argv) {
     else {
         rasbhari rasb_set = rasb_implement::hillclimb_oc(patternNumber, weight, dc, dc);
         patternset PatSet = rasb_set.pattern_set();
-        for (unsigned int i = 0; i < PatSet.size(); ++i) {
-            string pattern = PatSet[i].to_string();
+        for (const auto &i : PatSet) {
+            string pattern = i.to_string();
             vector<char> tmp(pattern.begin(), pattern.end());
             patterns.push_back(tmp);
         }
@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
 
     /* -------------------- */
 
-    /* Parsing and calculating spacedWords */
+    /* parsing and calculating spacedWords */
     vector<Sequence> sequences;
     if (inFiles.empty() && !input_filename.empty() ) {
         cout << " --------------\nDetected Multifasta!\n";
@@ -123,9 +123,7 @@ int main(int argc, char **argv) {
     /* calculating matches */
     cout << " --------------\nCalculating matches...\n";
     double start_matches = omp_get_wtime();
-    int length = (int) sequences.size();
-    double distance[length][length];
-
+    vector<vector<double>> distance(sequences.size(), vector<double>(sequences.size()) );
     for (unsigned int i = 0; i < sequences.size(); ++i) {
         distance[i][i] = 0;
 	#pragma omp parallel for
@@ -139,51 +137,9 @@ int main(int argc, char **argv) {
     time_elapsed(start_matches);
     /* ------------------------ */
 
-    /* output distance matrix */
-    ofstream output_distance;
-    output_distance.open(output_filename);
-    output_distance << '\t' << sequences.size() << endl;
-    for (unsigned int i = 0; i < sequences.size(); ++i) {
-        if (sequences[i].header.size() == 10) {
-            output_distance << sequences[i].header;
-        }
-        else if (sequences[i].header.size() > 10) {
-            output_distance << sequences[i].header.substr(0,9);
-        }
-        else {
-            output_distance << sequences[i].header;
-            for (unsigned int n = 0; n < 10 - sequences[i].header.size(); ++n) {
-                output_distance << " ";
-            }
-        }
-        for (unsigned int j = 0; j < sequences.size(); ++j) {
-            if (distance[i][j] == 0) {
-                output_distance << "0.000000" << "  " ;
-            }
-            else if (std::isnan(distance[i][j]) != 0) {
-                output_distance << "10.000000"  << "  " ;
-            }
-            else {
-                output_distance << distance[i][j] << "  " ;
-            }
-        }
-        output_distance << endl;
-    }
-    output_distance.close();
-    if (tooDistant) {
-        cout << "\n\t>>>>>>>>>>>>>>>>>>>> Warning <<<<<<<<<<<<<<<<<<<<\n" <<
-        "\tThe distance between at least two organisms is too big resulting in a 'nan' value!\n" <<
-        "\tA dummy value (10.0) has been inserted instead for those pairwise distances!\n" <<
-        "\tThus the resulting distance matrix is not to be considered reliable!\n" <<
-        "\tPossible solutions to resolve this issue:\n" <<
-        "\t\t- decrease the weight of the patterns (-w option; default = 6)\n" <<
-        "\t\t- lower the threshold to include more matches(-s option; default = 0)\n" <<
-        "\t\t- increase the amount of input data for these species (whole-proteomes are advised!)\n"<<
-        "\t>>>>>>>>>>>>>>>>>>>> Warning <<<<<<<<<<<<<<<<<<<<\n";
-    }
-    /* ----------------------- */
-
+    outputDistanceMatrix(sequences, output_filename, distance, tooDistant);
     cout << " --------------\nTotal run-time:\n";
     time_elapsed(start);
+
     return 0;
 }

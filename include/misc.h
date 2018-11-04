@@ -21,4 +21,6 @@
         std::string delete_prefix (std::string);
         std::vector<std::vector<char> > rand_pattern (int w, int d, int pat_number);
         void time_elapsed(double start);
+        void outputDistanceMatrix (const std::vector<Sequence>& species, const std::string& fileName,
+                                   const std::vector<std::vector<double> >& distanceMatrix, const bool& tooDistant);
 #endif // MISC_H
