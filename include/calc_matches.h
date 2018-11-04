@@ -5,7 +5,10 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <algorithm>
+#include <fstream>
+#include <map>
 
-double calc_matches(Sequence& s1, Sequence& s2, int& weight, int& dc, int& threshold, std::vector<std::vector<char> >& patterns);
+double calc_matches(const Species& s1, const Species& s2, const int& weight, const int& dc, const int& threshold, const std::vector<std::vector<char> >& patterns, const bool& outputScores);
 
 #endif // CALC_MATCHES_H
