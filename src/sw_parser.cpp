@@ -3,7 +3,7 @@
 using namespace std;
 
 vector<string> translate_here = {"A","R","N","D","C","Q","E","G","H","I","L","K","M","F","P","S","T","W","Y","V","B","Z","X","*","J"};
-vector<Sequence> sw_parser(vector<string>& fileNames, vector<Sequence>& out, vector<vector<char>> const& patterns)
+vector<Species> sw_parser(vector<string>& fileNames, vector<Species>& out, vector<vector<char>> const& patterns)
 {
     for (unsigned int i = 0; i < fileNames.size() -1; ++i)
     {
@@ -15,7 +15,7 @@ vector<Sequence> sw_parser(vector<string>& fileNames, vector<Sequence>& out, vec
         string header = delete_suffix(delete_prefix(fileNames[i]));
         string line;
         vector<int> starts;
-        Sequence tmpSequence;
+        Species tmpSequence;
         if (header.size() > 10)
         {
             string name = header.substr(0,9);

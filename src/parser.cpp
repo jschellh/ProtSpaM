@@ -2,14 +2,14 @@
 
 using namespace std;
 
-vector<Sequence> parser (string filename, vector<Sequence>& out)
+vector<Species> parser (string filename, vector<Species>& out)
 {
     ifstream input(filename);
     if (!input.good() )
     {
         cerr << "Error opening '" << filename << "'. Bailing out.\n";
     }
-    Sequence tmp;
+    Species tmp;
 
     string line;
     while (getline(input,line).good() )

@@ -1,7 +1,7 @@
 #ifndef CALC_MATCHES_H
 #define CALC_MATCHES_H
 #include "Word.h"
-#include "Sequence.h"
+#include "Species.h"
 #include <vector>
 #include <string>
 #include <iostream>

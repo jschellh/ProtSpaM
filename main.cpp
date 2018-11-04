@@ -19,7 +19,7 @@
 #include <string>
 #include <cmath>
 #include <omp.h>
-#include "Sequence.h"
+#include "Species.h"
 #include "misc.h"
 #include "calc_matches.h"
 #include "parser.h"
@@ -85,14 +85,14 @@ int main(int argc, char **argv) {
     /* -------------------- */
 
     /* parsing and calculating spacedWords */
-    vector<Sequence> sequences;
+    vector<Species> species;
     if (inFiles.empty() && !input_filename.empty() ) {
         cout << " --------------\nDetected Multifasta!\n";
-        parser(input_filename, sequences);
+        parser(input_filename, species);
     }
     else if (!inFiles.empty() ) {
         cout << " --------------\nDetected input folder!\n";
-        sw_parser(inFiles, sequences, patterns);
+        sw_parser(inFiles, species, patterns);
     }
     /* ----------------------------------- */
 
@@ -101,18 +101,18 @@ int main(int argc, char **argv) {
     double start_sw = omp_get_wtime();
     if (inFiles.empty() && !input_filename.empty() ) {
         #pragma omp parallel for
-        for (unsigned int i = 0; i < sequences.size(); ++i) {
+        for (unsigned int i = 0; i < species.size(); ++i) {
             for (const auto &pattern : patterns) {
                 vector<Word> sw;
-                spacedWords(sequences[i], pattern, sw);
+                spacedWords(species[i], pattern, sw);
             }
         }
     }
     else if (!inFiles.empty() ) {
         #pragma omp parallel for
-        for (unsigned int i = 0; i < sequences.size(); ++i) {
+        for (unsigned int i = 0; i < species.size(); ++i) {
             for (const auto &pattern : patterns) {
-                spacedWords(sequences[i], pattern);
+                spacedWords(species[i], pattern);
             }
         }
     }
@@ -123,12 +123,12 @@ int main(int argc, char **argv) {
     /* calculating matches */
     cout << " --------------\nCalculating matches...\n";
     double start_matches = omp_get_wtime();
-    vector<vector<double>> distance(sequences.size(), vector<double>(sequences.size()) );
-    for (unsigned int i = 0; i < sequences.size(); ++i) {
+    vector<vector<double>> distance(species.size(), vector<double>(species.size()) );
+    for (unsigned int i = 0; i < species.size(); ++i) {
         distance[i][i] = 0;
 	#pragma omp parallel for
-        for (auto j = sequences.size() - 1; j > i; --j) {
-            double mismatch_rate = calc_matches(sequences[i], sequences[j], weight, dc, threshold, patterns);
+        for (auto j = species.size() - 1; j > i; --j) {
+            double mismatch_rate = calc_matches(species[i], species[j], weight, dc, threshold, patterns, outputScores);
             distance[i][j] = calc_distance(mismatch_rate);
             if (mismatch_rate > 0.8541) tooDistant = true;
             distance[j][i] = distance[i][j];
@@ -137,7 +137,7 @@ int main(int argc, char **argv) {
     time_elapsed(start_matches);
     /* ------------------------ */
 
-    outputDistanceMatrix(sequences, output_filename, distance, tooDistant);
+    outputDistanceMatrix(species, output_filename, distance, tooDistant);
     cout << " --------------\nTotal run-time:\n";
     time_elapsed(start);
 

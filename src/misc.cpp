@@ -97,7 +97,7 @@ bool isContext (unsigned long long spaced_word, unsigned int weight)
 }
 
 /* Calculates every "Spaced Word" for a sequence and a given pattern*/
-void spacedWords (Sequence& sequence, vector<char> const& pattern, vector<Word>& out)
+void spacedWords (Species& sequence, vector<char> const& pattern, vector<Word>& out)
 {
     for (unsigned int i = 0; i < (sequence.seq.size() - pattern.size() + 1); ++i)
     {
@@ -120,7 +120,7 @@ void spacedWords (Sequence& sequence, vector<char> const& pattern, vector<Word>&
     sequence.set_words(out);
 }
 
-void spacedWords(Sequence& sequence, vector<char> const& pattern)
+void spacedWords(Species& sequence, vector<char> const& pattern)
 {
     vector<Word> words;
     for (unsigned int i = 0; i < sequence.starts.size(); ++i)
@@ -246,7 +246,7 @@ void time_elapsed(double start)
     }
 }
 
-void outputDistanceMatrix (const vector<Sequence>& species, const string& fileName,
+void outputDistanceMatrix (const vector<Species>& species, const string& fileName,
                            const vector<vector<double> >& distanceMatrix, const bool& tooDistant) {
     ofstream output_distance;
     output_distance.open(fileName);

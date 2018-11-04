@@ -3,7 +3,7 @@ IDIR = ./include
 CFLAGS = -c -Wall -std=c++11 -I $(IDIR) -O3
 OBJDIR = ./obj/
 
-objects = $(addprefix $(OBJDIR), main.o Sequence.o Word.o misc.o calc_matches.o parser.o pattern.o patternset.o rasbcomp.o rasbhari.o rasbimp.o rasbopt.o sensmem.o speedsens.o parameters.o sw_parser.o)
+objects = $(addprefix $(OBJDIR), main.o Species.o Word.o misc.o calc_matches.o parser.o pattern.o patternset.o rasbcomp.o rasbhari.o rasbimp.o rasbopt.o sensmem.o speedsens.o parameters.o sw_parser.o)
 
 Debug: all
 all: protspam
@@ -16,8 +16,8 @@ $(OBJDIR)main.o: main.cpp
 	mkdir -p obj
 	$(CC) $(CFLAGS) main.cpp -o $@
 
-$(OBJDIR)Sequence.o: src/Sequence.cpp
-	$(CC) $(CFLAGS) src/Sequence.cpp -o $@
+$(OBJDIR)Species.o: src/Species.cpp
+	$(CC) $(CFLAGS) src/Species.cpp -o $@
 
 $(OBJDIR)Word.o: src/Word.cpp
 	$(CC) $(CFLAGS) src/Word.cpp -o $@

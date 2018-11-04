@@ -4,8 +4,8 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include "Sequence.h"
+#include "Species.h"
 
-std::vector<Sequence> parser (std::string filename, std::vector<Sequence>& out);
+std::vector<Species> parser (std::string filename, std::vector<Species>& out);
 
 #endif // PARSER_H
