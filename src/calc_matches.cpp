@@ -2,21 +2,6 @@
 
 using namespace std;
 
-vector<string> trans = {"A","R","N","D","C","Q","E","G","H","I","L","K","M","F","P","S","T","W","Y","V","B","Z","X","*"};
-
-string read_sw (unsigned long long spaced_word, unsigned int weight)
-{
-    string out;
-    int i = 0;
-    while (out.size() < weight)
-    {
-        int letter = spaced_word & ((1 << 5) - 1);
-        spaced_word >>= 5;
-        out.insert(i,trans[letter]);
-    }
-    return out;
-}
-
 const int rows_col = 24;
 int blosum62 [rows_col][rows_col] =
     {
@@ -46,15 +31,13 @@ int blosum62 [rows_col][rows_col] =
         {-4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4,  1}
     };
 
-int multimatch (vector<Word>& sortedWords, int start)
-{
-    int multimatch_length = 1;
-    while (sortedWords[start].key == sortedWords[start+1].key)
-    {
-        ++multimatch_length;
+int multiMatch(const vector<Word> &sortedWords, int start) {
+    int multiMatch_length = 1;
+    while (sortedWords[start].key == sortedWords[start+1].key) {
+        ++multiMatch_length;
         ++start;
     }
-    return multimatch_length;
+    return multiMatch_length;
 }
 
 double calc_matches (Sequence& species1, Sequence& species2, int& weight, int& dc, int& threshold, vector<vector<char> >& patterns)
