@@ -72,7 +72,8 @@ double calc_mismatchRate (vector<pair<int,int> >& mismatchesDC) {
     return (double) mismatches / dontCare;
 }
 
-double calc_matches (const Species& species1, const Species& species2, const int& weight, const int& dc, const int& threshold, const vector<vector<char> >& patterns, const bool& outputScores) {
+double calc_matches (const Species& species1, const Species& species2, const int& weight, const int& dc,
+                     const int& threshold, const vector<vector<char> >& patterns, const bool& outputScores) {
     unsigned int skip = 0;
     int total_mismatches = 0;
     int total_dc = 0;
@@ -164,12 +165,14 @@ double calc_matches (const Species& species1, const Species& species2, const int
                         }
                     }
                 }
-                auto exists = scores.find(best[0]);
-                if (exists != scores.end() ) {
-                    scores[best[0]] += 1;
-                }
-                else if (best[0]){
-                    scores.insert(pair<int, int>(best[0], 1));
+                if (outputScores) {
+                    auto exists = scores.find(best[0]);
+                    if (exists != scores.end() ) {
+                        scores[best[0]] += 1;
+                    }
+                    else if (best[0]){
+                        scores.insert(pair<int, int>(best[0], 1));
+                    }
                 }
                 if (best[0] >= threshold) {
                     total_mismatches += best[1];
@@ -212,12 +215,14 @@ double calc_matches (const Species& species1, const Species& species2, const int
                                     best[1] = mismatches;
                                 }
                                 if (j == limit) {
-                                    auto exists = scores.find(best[0]);
-                                    if (exists != scores.end() ) {
-                                        scores[best[0]] += 1;
-                                    }
-                                    else {
-                                        scores.insert(pair<int, int>(best[0], 1));
+                                    if (outputScores) {
+                                        auto exists = scores.find(best[0]);
+                                        if (exists != scores.end() ) {
+                                            scores[best[0]] += 1;
+                                        }
+                                        else {
+                                            scores.insert(pair<int, int>(best[0], 1));
+                                        }
                                     }
                                     if (best[0] > threshold) {
                                         total_mismatches += best[1];
@@ -248,12 +253,14 @@ double calc_matches (const Species& species1, const Species& species2, const int
                                     }
                                 }
                             }
-                            auto exists = scores.find(score);
-                            if (exists != scores.end() ) {
-                                scores[score] += 1;
-                            }
-                            else {
-                                scores.insert(pair<int, int>(score, 1));
+                            if (outputScores) {
+                                auto exists = scores.find(score);
+                                if (exists != scores.end() ) {
+                                    scores[score] += 1;
+                                }
+                                else {
+                                    scores.insert(pair<int, int>(score, 1));
+                                }
                             }
                             if (score >= threshold) {
                                 total_mismatches += mismatches;
