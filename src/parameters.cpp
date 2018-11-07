@@ -86,6 +86,7 @@ void parseParameters(int argc, char *argv[], int& weight, int& dc, int& threshol
             case 'r':
                 outputScores = true;
                 system("mkdir -p scores");
+                threshold = INT32_MIN + 1;
                 break;
 		    case 'p':
 		        loadPatterns = optarg;

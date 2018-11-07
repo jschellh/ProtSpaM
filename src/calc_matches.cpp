@@ -5,7 +5,7 @@ using namespace std;
 const int rows_col = 24;
 int blosum62 [rows_col][rows_col] =
     {
-        {4,  -1, -2, -2,  0, -1, -1,  0, -2, -1, -1, -1, -1, -2, -1,  1,  0, -3, -2,  0, -2, -1,  0, -4},    // Array, das mit der Matrix befüllt wird
+        {4,  -1, -2, -2,  0, -1, -1,  0, -2, -1, -1, -1, -1, -2, -1,  1,  0, -3, -2,  0, -2, -1,  0, -4},
         {-1,  5,  0, -2, -3,  1,  0, -2,  0, -3, -2,  2, -1, -3, -2, -1, -1, -3, -2, -3, -1,  0, -1, -4},
         {-2,  0,  6,  1, -3,  0,  0,  0,  1, -3, -3,  0, -2, -3, -2,  1,  0, -4, -2, -3,  3,  0, -1, -4},
         {-2, -2,  1,  6, -3,  0,  2, -1, -1, -3, -4, -1, -3, -3, -1,  0, -1, -4, -3, -3,  4,  1, -1, -4},
@@ -40,14 +40,14 @@ int multiMatch(const vector<Word> &sortedWords, int start) {
     return multiMatch_length;
 }
 
-void scoreOutput(map<int,int>& scores, string header1, string header2) {
+void scoreOutput(map<int,int> &scores, string header1, string header2) {
     header1.erase(header1.find_last_not_of(" \n\r\t") + 1);
     header2.erase(header2.find_last_not_of(" \n\r\t") + 1);
     string fileName = "scores/" + header1 + "_" + header2 + ".scr";
 
     vector<pair<int, int>> scoreVector(scores.size());
     int i = 0;
-    for (auto pair : scores) {
+    for (const auto &pair : scores) {
         scoreVector[i++] = pair;
     }
     sort(scoreVector.begin(), scoreVector.end());
@@ -92,7 +92,7 @@ double calc_matches (const Species& species1, const Species& species2, const int
         for (unsigned int i = 0; i < spacedWords1.size(); ++i) {
             int bl1 = multiMatch(spacedWords1, i);
             if (bl1 > 1) {
-                vector<int> best = {threshold, 0};
+                vector<int> best = {threshold - 1, 0};
                 unsigned int limit1 = i + bl1 - 1;
                 for (i; i <= limit1; ++i) {
                     bool singleMatch = true;
@@ -121,7 +121,7 @@ double calc_matches (const Species& species1, const Species& species2, const int
                                         }
                                     }
                                 }
-                                if (score > threshold && score > best[0]) {
+                                if (score >= threshold && score > best[0]) {
                                     best[0] = score;
                                     best[1] = mismatches;
                                 }
@@ -189,7 +189,7 @@ double calc_matches (const Species& species1, const Species& species2, const int
                     int bl2 = multiMatch(spacedWords2, j);
                     if (bl2 > 1) {
                         go_on = false;
-                        vector<int> best = {threshold, 0};
+                        vector<int> best = {threshold - 1, 0};
                         unsigned int limit = j + bl2 - 1;
                         for (j; j <= limit; ++j) {
                             score = 0;
@@ -210,7 +210,7 @@ double calc_matches (const Species& species1, const Species& species2, const int
                                         }
                                     }
                                 }
-                                if (score > threshold) {
+                                if (score >= threshold && score > best[0]) {
                                     best[0] = score;
                                     best[1] = mismatches;
                                 }

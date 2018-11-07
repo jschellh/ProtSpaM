@@ -49,7 +49,6 @@ int main(int argc, char **argv) {
     string output_filename = "DMat";
     bool tooDistant = false;
     parseParameters(argc, argv, weight, dc, threshold, patternNumber, threads, inFiles, output_filename, savePatterns, loadPatterns, outputScores);
-    if (outputScores) threshold = INT32_MIN;
     string input_filename(argv[argc-1]);
     printParameters(weight, dc, threshold, patternNumber, threads, output_filename);
     omp_set_num_threads(threads);
