@@ -40,50 +40,15 @@ int multiMatch(const vector<Word> &sortedWords, int start) {
     return multiMatch_length;
 }
 
-void scoreOutput(map<int,int> &scores, string header1, string header2) {
-    header1.erase(header1.find_last_not_of(" \n\r\t") + 1);
-    header2.erase(header2.find_last_not_of(" \n\r\t") + 1);
-    string fileName = "scores/" + header1 + "_" + header2 + ".scr";
-
-    vector<pair<int, int>> scoreVector(scores.size());
-    int i = 0;
-    for (const auto &pair : scores) {
-        scoreVector[i++] = pair;
-    }
-    sort(scoreVector.begin(), scoreVector.end());
-
-    ofstream scoresOut;
-    scoresOut.open(fileName);
-    scoresOut << "score,freq\n";
-    for (auto &s : scoreVector) {
-        if (s.first > INT32_MIN) {
-            scoresOut << s.first << "," << s.second << "\n";
-        }
-    }
-}
-
-double calc_mismatchRate (vector<pair<int,int> >& mismatchesDC) {
-    int mismatches = 0;
-    int dontCare = 0;
-    for (auto pair : mismatchesDC) {
-        mismatches += pair.first;
-        dontCare += pair.second;
-    }
-    return (double) mismatches / dontCare;
-}
-
-double calc_matches (const Species& species1, const Species& species2, const int& weight, const int& dc,
-                     const int& threshold, const vector<vector<char> >& patterns, const bool& outputScores) {
+vector<Match> calc_matches (const Species& species1, const Species& species2, const int& weight, const int& dc,
+        const int& threshold, const vector<vector<char> >& patterns){
     unsigned int skip = 0;
-    int total_mismatches = 0;
-    int total_dc = 0;
     int score;
     int mismatches;
-    map<int, int> scores;
     bool multi_done = false;
     const vector<char>& sequence1 = species1.seq;
     const vector<char>& sequence2 = species2.seq;
-    vector<pair<int, int>> mismatchDontCare;
+    vector<Match> matches;
 
     for (unsigned int currentPattern = 0; currentPattern < patterns.size(); ++currentPattern) {
         const vector<Word>& spacedWords1 = species1.sorted_words[currentPattern];
@@ -121,7 +86,7 @@ double calc_matches (const Species& species1, const Species& species2, const int
                                         }
                                     }
                                 }
-                                if (score >= threshold && score > best[0]) {
+                                if (score > best[0]) {
                                     best[0] = score;
                                     best[1] = mismatches;
                                 }
@@ -151,7 +116,7 @@ double calc_matches (const Species& species1, const Species& species2, const int
                                         }
                                     }
                                 }
-                                if (score >= threshold && score > best[0]) {
+                                if (score > best[0]) {
                                     best[0] = score;
                                     best[1] = mismatches;
                                 }
@@ -165,18 +130,8 @@ double calc_matches (const Species& species1, const Species& species2, const int
                         }
                     }
                 }
-                if (outputScores) {
-                    auto exists = scores.find(best[0]);
-                    if (exists != scores.end() ) {
-                        scores[best[0]] += 1;
-                    }
-                    else if (best[0]){
-                        scores.insert(pair<int, int>(best[0], 1));
-                    }
-                }
                 if (best[0] >= threshold) {
-                    total_mismatches += best[1];
-                    total_dc += dc;
+                    matches.emplace_back(best[0], best[1]);
                 }
                 if (bl1 > 1 && multi_done) {
                     --i;
@@ -210,23 +165,13 @@ double calc_matches (const Species& species1, const Species& species2, const int
                                         }
                                     }
                                 }
-                                if (score >= threshold && score > best[0]) {
+                                if (score > best[0]) {
                                     best[0] = score;
                                     best[1] = mismatches;
                                 }
                                 if (j == limit) {
-                                    if (outputScores) {
-                                        auto exists = scores.find(best[0]);
-                                        if (exists != scores.end() ) {
-                                            scores[best[0]] += 1;
-                                        }
-                                        else {
-                                            scores.insert(pair<int, int>(best[0], 1));
-                                        }
-                                    }
-                                    if (best[0] > threshold) {
-                                        total_mismatches += best[1];
-                                        total_dc += dc;
+                                    if (best[0] >= threshold) {
+                                        matches.emplace_back(best[0], best[1]);
                                     }
                                     skip += bl2;
                                 }
@@ -253,18 +198,8 @@ double calc_matches (const Species& species1, const Species& species2, const int
                                     }
                                 }
                             }
-                            if (outputScores) {
-                                auto exists = scores.find(score);
-                                if (exists != scores.end() ) {
-                                    scores[score] += 1;
-                                }
-                                else {
-                                    scores.insert(pair<int, int>(score, 1));
-                                }
-                            }
                             if (score >= threshold) {
-                                total_mismatches += mismatches;
-                                total_dc += dc;
+                                matches.emplace_back(score, mismatches);
                             }
                             break;
                         }
@@ -272,12 +207,7 @@ double calc_matches (const Species& species1, const Species& species2, const int
                 }
             }
         }
-        mismatchDontCare.emplace_back(total_mismatches, total_dc);
     }
-
-    if (outputScores) {
-        scoreOutput(scores, species1.header, species2.header);
-    }
-
-    return calc_mismatchRate(mismatchDontCare);
+    sort(matches.begin(), matches.end());
+    return matches;
 }

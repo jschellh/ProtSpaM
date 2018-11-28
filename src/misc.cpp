@@ -59,43 +59,6 @@ vector<vector<char>> parsePatterns (string patternSet)
     return out;
 }
 
-/* Returns a string of a given long word*/
-vector<string> translate = {"A","R","N","D","C","Q","E","G","H","I","L","K","M","F","P","S","T","W","Y","V","B","Z","X","*","J"};
-string read_word (unsigned long long spaced_word, unsigned int weight)
-{
-    string out;
-    int i = 0;
-    while (out.size() < weight)
-    {
-        int letter = spaced_word & ((1 << 5) - 1);
-        spaced_word >>= 5;
-        out.insert(i,translate[letter]);
-    }
-    return out;
-}
-
-/* Returns true if the spaced-word is a real context (i.e. not containing 'J') */
-bool isContext (unsigned long long spaced_word, unsigned int weight)
-{
-    string out;
-    int i = 0;
-    while (out.size() < weight)
-    {
-        int letter = spaced_word & ((1 << 5) - 1);
-        spaced_word >>= 5;
-        if (translate[letter] == "J")
-        {
-//            cout << "Letter \"" << translate[letter] << "\" found!\n" ;
-            return false;
-        }
-        else
-        {
-            out.insert(i,translate[letter]);
-        }
-    }
-    return true;
-}
-
 /* Calculates every "Spaced Word" for a sequence and a given pattern*/
 void spacedWords (Species& sequence, vector<char> const& pattern, vector<Word>& out)
 {
@@ -156,11 +119,25 @@ void spacedWords(Species& sequence, vector<char> const& pattern)
     sequence.set_words(words);
 }
 
-/* Calculates the distance using Kimura Formula */
-double calc_distance (double mmr)
+/* outputs the file containing all pairwise matches */
+void output_pairwise (vector<SummedMatches>& matches, string firstName, string secondName)
 {
-    double distance = -log(1 - mmr - (0.2 * pow(mmr,2.0) ) );
-    return distance;
+    ofstream out;
+    string filename = "results/";
+    firstName.erase(firstName.find_last_not_of(" \n\r\t")+1);
+    filename.append(firstName);
+    filename.append("_vs_");
+    secondName.erase(secondName.find_last_not_of(" \n\r\t")+1);
+    filename.append(secondName);
+    out.open(filename);
+    out << firstName << "," << secondName << endl;
+    for (SummedMatches &current : matches)
+    {
+        if (current.score >= INT32_MIN + 1) {
+            out << current.score << "," << current.frequency << "," << current.dist << endl;
+        }
+    }
+    out.close();
 }
 
 /* Deletes the file-suffix of the input-filename */
@@ -194,33 +171,6 @@ string delete_prefix (string file)
     {
         return file;
     }
-}
-
-/* Generates patterns (pat_number times) */
-vector<vector<char> > rand_pattern(int w, int d, int pat_number)
-{
-    vector<vector<char> > pattern;
-    for (int i = 0; i < pat_number; ++i)
-    {
-        int lg = w + d;
-        int carepos = 2;                                //zwei care-positionen stehen zu beginn fest
-        vector<char> tmp(lg, '0');
-        tmp[0] = '1';                                     //erste und letzte Stelle des Patterns = 1
-        tmp[lg-1]= '1';
-        unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-        default_random_engine generator (seed);
-        uniform_int_distribution<int> position(1,lg-2);
-
-        while (carepos < w){
-            int pos = position(generator);
-                if (tmp[pos] == '0'){
-                tmp[pos] = '1';
-                carepos++;
-                }
-        }
-        pattern.push_back(tmp);
-    }
-    return pattern;
 }
 
 void time_elapsed(double start)

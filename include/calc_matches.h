@@ -1,6 +1,7 @@
 #ifndef CALC_MATCHES_H
 #define CALC_MATCHES_H
 #include "Word.h"
+#include "Match.h"
 #include "Species.h"
 #include <vector>
 #include <string>
@@ -9,6 +10,6 @@
 #include <fstream>
 #include <map>
 
-double calc_matches(const Species& s1, const Species& s2, const int& weight, const int& dc, const int& threshold, const std::vector<std::vector<char> >& patterns, const bool& outputScores);
+std::vector<Match> calc_matches(const Species& s1, const Species& s2, const int& weight, const int& dc, const int& threshold, const std::vector<std::vector<char> >& patterns);
 
 #endif // CALC_MATCHES_H

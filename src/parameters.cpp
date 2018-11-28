@@ -5,13 +5,16 @@ using namespace std;
 
 void printHelp(){
     string help =
-    "\nUsage: ./protspam [options] -l <list> "
+    "\nUsage: ./protspam [options] <sequence> "
     "\n"
-    "\n<list> format:"
-    "\n\t Contains the path to each input data set. Example:"
-    "\n\t ../input/ecoli.faa"
-    "\n\t ../input/drosophila.faa"
-    "\n\t ../input/celegans.faa"
+    "\n<sequence> format:"
+    "\n\t Sequence must be in FASTA format. All concatenated proteomes must be contained in one FASTA file. Example:"
+    "\n\t >Proteome1"
+    "\n\t ARNDCQE.."
+    "\n\t >Proteome2"
+    "\n\t ARNDCQE.."
+    "\n\t >Proteome3"
+    "\n\t ARNDCQE.."
     "\n\t .."
     "\n\t "
     "\nOptions:"
@@ -25,15 +28,14 @@ void printHelp(){
     "\n\t -z : if option is set, the pattern set used will be stored in patterns.txt"
     "\n\t -p <filename>: filename of pattern set to load and reuse"
     "\n\t -l <filename>: specify a list of files to read as input (one input file per organism containing each sequence, seperated by headers) "
-    "\n\t -r : output the scores for each pair of sequences (used for spamograms) if option is set"
     "\n";
 	cout << help << endl;
 }
 
 void parseParameters(int argc, char *argv[], int& weight, int& dc, int& threshold, int& patterns, int& threads,
-                     vector<string>& inputFileNames, string& output, bool& savePatterns, string& loadPatterns, bool& outputScores) {
+                     vector<string>& inputFileNames, string& output, bool& savePatterns, string& loadPatterns) {
 	int option_char;
-	 while ((option_char = getopt (argc, argv, "w:d:s:m:t:l:o:zrp:h")) != -1) {
+	 while ((option_char = getopt (argc, argv, "w:d:s:m:t:l:o:zp:h")) != -1) {
 		switch (option_char) {
 			case 'w':
 				weight = atoi (optarg);
@@ -83,11 +85,6 @@ void parseParameters(int argc, char *argv[], int& weight, int& dc, int& threshol
 		    case 'z':
 		        savePatterns = true;
 		        break;
-            case 'r':
-                outputScores = true;
-                system("mkdir -p scores");
-                threshold = INT32_MIN + 1;
-                break;
 		    case 'p':
 		        loadPatterns = optarg;
 		        break;

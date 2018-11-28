@@ -28,6 +28,8 @@
 #include "patternset.hpp"
 #include "parameters.h"
 #include "sw_parser.h"
+#include "Match.h"
+#include "SummedMatches.h"
 
 using namespace std;
 
@@ -39,16 +41,14 @@ int main(int argc, char **argv) {
 	}
     int weight = 6;
     int dc = 40;
-    int threshold = 0;
+    int threshold = INT32_MIN + 1;
     int patternNumber = 5;
     int threads = omp_get_max_threads();
     string loadPatterns;
     bool savePatterns = false;
-    bool outputScores = false;
     vector<string> inFiles;
     string output_filename = "DMat";
-    bool tooDistant = false;
-    parseParameters(argc, argv, weight, dc, threshold, patternNumber, threads, inFiles, output_filename, savePatterns, loadPatterns, outputScores);
+    parseParameters(argc, argv, weight, dc, threshold, patternNumber, threads, inFiles, output_filename, savePatterns, loadPatterns);
     string input_filename(argv[argc-1]);
     printParameters(weight, dc, threshold, patternNumber, threads, output_filename);
     omp_set_num_threads(threads);
@@ -87,11 +87,7 @@ int main(int argc, char **argv) {
 
     /* parsing and calculating spacedWords */
     vector<Species> species;
-    if (inFiles.empty() && !input_filename.empty() ) {
-        cout << " --------------\nDetected Multifasta!\n";
-        parser(input_filename, species);
-    }
-    else if (!inFiles.empty() ) {
+    if (!inFiles.empty() ) {
         cout << " --------------\nDetected input folder!\n";
         sw_parser(inFiles, species, patterns);
     }
@@ -124,21 +120,23 @@ int main(int argc, char **argv) {
     /* calculating matches */
     cout << " --------------\nCalculating matches...\n";
     double start_matches = omp_get_wtime();
-    vector<vector<double>> distance(species.size(), vector<double>(species.size()) );
     for (unsigned int i = 0; i < species.size(); ++i) {
-        distance[i][i] = 0;
 	#pragma omp parallel for
         for (auto j = species.size() - 1; j > i; --j) {
-            double mismatch_rate = calc_matches(species[i], species[j], weight, dc, threshold, patterns, outputScores);
-            distance[i][j] = calc_distance(mismatch_rate);
-            if (mismatch_rate > 0.8541) tooDistant = true;
-            distance[j][i] = distance[i][j];
+            vector<Match> matches;
+            for (uint32_t pat = 0; pat < patterns.size(); ++pat) {
+                vector<Match> result = calc_matches(species[i], species[j], weight, dc, threshold, patterns);
+                matches.insert(matches.end(), result.begin(), result.end());
+            }
+            sort(matches.begin(), matches.end());
+            vector<SummedMatches> result = SummedMatches::sumMatches(matches, dc);
+            string header1 = species[i].header;
+            string header2 = species[j].header;
+            output_pairwise(result, header1, header2);
         }
     }
     time_elapsed(start_matches);
     /* ------------------------ */
-
-    outputDistanceMatrix(species, output_filename, distance, tooDistant);
     cout << " --------------\nTotal run-time:\n";
     time_elapsed(start);
 
