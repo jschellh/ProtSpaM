@@ -24,7 +24,6 @@ void printHelp(){
     "\n\t -s <integer>: the minimum score of a spaced-word match to be considered homologous (default: 0)"
     "\n\t -m <integer>: number of patterns used (default 5)"
     "\n\t -t <integer>: number of threads (default: omp_get_max_threads() )"
-    "\n\t -o <filename>: filename for distance matrix (default: DMat)"
     "\n\t -z : if option is set, the pattern set used will be stored in patterns.txt"
     "\n\t -p <filename>: filename of pattern set to load and reuse"
     "\n\t -l <filename>: specify a list of files to read as input (one input file per organism containing each sequence, seperated by headers) "
@@ -35,7 +34,7 @@ void printHelp(){
 void parseParameters(int argc, char *argv[], int& weight, int& dc, int& threshold, int& patterns, int& threads,
                      vector<string>& inputFileNames, string& output, bool& savePatterns, string& loadPatterns) {
 	int option_char;
-	 while ((option_char = getopt (argc, argv, "w:d:s:m:t:l:o:zp:h")) != -1) {
+	 while ((option_char = getopt (argc, argv, "w:d:s:m:t:l:zp:h")) != -1) {
 		switch (option_char) {
 			case 'w':
 				weight = atoi (optarg);
@@ -68,9 +67,18 @@ void parseParameters(int argc, char *argv[], int& weight, int& dc, int& threshol
 				}
 				break;
             case 'l': {
-                std::ifstream infile(optarg);
+                string input_file = optarg;
+                auto found = input_file.find_last_of('/');
+                if (found != string::npos) {
+                    output = input_file.substr(0, found + 1);
+                } else {
+                    cerr << "Error: input list has to be passed with full path\n" << endl;
+                    exit(EXIT_FAILURE);
+                }
+                std::ifstream infile(input_file);
                 if (!infile.good()) {
-                    cerr << "Error opening inputfiles-list: '" << optarg << "'. Bailing out.\n";
+                    cerr << "Error opening input files list: '" << optarg << "'. Bailing out.\n";
+                    exit(EXIT_FAILURE);
                 }
                 std::string line;
                 while (!infile.eof()) {
@@ -79,9 +87,6 @@ void parseParameters(int argc, char *argv[], int& weight, int& dc, int& threshol
                 }
                 break;
             }
-            case 'o':
-                output = optarg;
-                break;
 		    case 'z':
 		        savePatterns = true;
 		        break;

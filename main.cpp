@@ -47,10 +47,10 @@ int main(int argc, char **argv) {
     string loadPatterns;
     bool savePatterns = false;
     vector<string> inFiles;
-    string output_filename = "DMat";
-    parseParameters(argc, argv, weight, dc, threshold, patternNumber, threads, inFiles, output_filename, savePatterns, loadPatterns);
+    string output_filePath;
+    parseParameters(argc, argv, weight, dc, threshold, patternNumber, threads, inFiles, output_filePath, savePatterns, loadPatterns);
     string input_filename(argv[argc-1]);
-    printParameters(weight, dc, threshold, patternNumber, threads, output_filename);
+    printParameters(weight, dc, threshold, patternNumber, threads, output_filePath);
     omp_set_num_threads(threads);
 
     /* pattern sets */
@@ -132,7 +132,7 @@ int main(int argc, char **argv) {
             vector<SummedMatches> result = SummedMatches::sumMatches(matches, dc);
             string header1 = species[i].header;
             string header2 = species[j].header;
-            output_pairwise(result, header1, header2);
+            output_pairwise(result, header1, header2, output_filePath);
         }
     }
     time_elapsed(start_matches);

@@ -120,10 +120,10 @@ void spacedWords(Species& sequence, vector<char> const& pattern)
 }
 
 /* outputs the file containing all pairwise matches */
-void output_pairwise (vector<SummedMatches>& matches, string firstName, string secondName)
+void output_pairwise (vector<SummedMatches>& matches, string firstName, string secondName, string& path)
 {
     ofstream out;
-    string filename = "results/";
+    string filename = path + "results/";
     firstName.erase(firstName.find_last_not_of(" \n\r\t")+1);
     filename.append(firstName);
     filename.append("_vs_");
@@ -178,9 +178,9 @@ void time_elapsed(double start)
     double finished = omp_get_wtime();
     double exec_time = finished - start;
 
-    int hours = exec_time / 3600;
-    int minutes = (exec_time - (3600 * hours) ) / 60;
-    int seconds = exec_time - (3600 * hours) - (60 * minutes);
+    int hours = (int) exec_time / 3600;
+    int minutes = (int) (exec_time - (3600 * hours) ) / 60;
+    int seconds = (int) exec_time - (3600 * hours) - (60 * minutes);
 
     if (hours != 0)
     {
