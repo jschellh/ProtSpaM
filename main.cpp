@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
     // output pattern set
     if (savePatterns) {
         ofstream patOut;
-        patOut.open("patterns.txt");
+        patOut.open(output_filePath + "patterns.txt");
         for (auto &p : patterns) {
             for (auto &c : p) {
                 patOut << c;
